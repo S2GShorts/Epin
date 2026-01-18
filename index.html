@@ -16,7 +16,6 @@
               sans: ['"Plus Jakarta Sans"', 'sans-serif'],
             },
             colors: {
-              // New Palette
               background: '#020617', // Deep Slate 950
               surface: '#0f172a',    // Slate 900
               surfaceHighlight: '#1e293b', // Slate 800
@@ -30,8 +29,8 @@
                 glow: 'rgba(6, 182, 212, 0.5)'
               },
               accent: '#8b5cf6', // Violet 500
-
-              // Legacy Mappings (Ensures Auth/Profile/Admin pages still work with new theme)
+              
+              // Backward compatibility
               'gaming-dark': '#020617',
               'gaming-card': '#0f172a',
               'gaming-neon': '#6366f1',
@@ -63,10 +62,19 @@
       }
     </script>
     <style>
-      body {
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
         background-color: #020617;
         color: #f8fafc;
         overflow-x: hidden;
+      }
+      
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
       
       /* Global Glass Effect */
@@ -134,11 +142,11 @@
   <script type="importmap">
 {
   "imports": {
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react": "https://aistudiocdn.com/react@^19.2.1"
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
   }
 }
 </script>
@@ -150,6 +158,10 @@
         <div class="aurora-blob bg-secondary w-96 h-96 bottom-0 right-0 translate-x-1/2 translate-y-1/2 animation-delay-2000"></div>
         <div class="aurora-blob bg-accent w-80 h-80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 animation-delay-4000"></div>
     </div>
+    
     <div id="root"></div>
+    
+    <!-- IMPORTANT: Entry point for Vite/Vercel -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

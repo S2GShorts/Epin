@@ -77,6 +77,12 @@ interface AppContextType {
   addComment: (comment: Omit<Comment, 'id' | 'date' | 'isApproved'>) => void;
   toggleCommentApproval: (id: string) => void;
   deleteComment: (id: string) => void;
+  
+  // Giveaways & Mystery Boxes (Static mock functions to prevent crash if called)
+  giveaways: any[];
+  joinGiveaway: (id: string) => void;
+  mysteryBoxes: any[];
+  openMysteryBox: (id: string) => Promise<any>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -583,7 +589,11 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
       addPaymentMethod, updatePaymentMethod, deletePaymentMethod, addPromoCode, deletePromoCode, togglePromoCode,
       addProduct, addProducts, deleteProduct, addCategory, deleteCategory, updateSiteSettings,
       addBlog, deleteBlog, addAgreement, deleteAgreement, toggleCommentApproval, deleteComment, addComment,
-      addStock, deleteStock, toggleWishlist
+      addStock, deleteStock, toggleWishlist,
+      giveaways: [], 
+      joinGiveaway: () => {}, 
+      mysteryBoxes: [], 
+      openMysteryBox: async () => null
     }}>
       {children}
     </AppContext.Provider>

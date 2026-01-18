@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, HelpCircle, User, Bot, ArrowRight, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageCircle, X, HelpCircle, Bot, ArrowRight, ChevronRight } from 'lucide-react';
 import { useApp } from '../store';
 
 const ChatWidget = () => {
