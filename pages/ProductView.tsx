@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../store';
 import { Product } from '../types';
-import { ArrowLeft, CheckCircle, ShieldCheck, ShoppingCart, Heart, Star, MessageSquare, User, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ShieldCheck, ShoppingCart, Heart, Star, MessageSquare, Send, Zap } from 'lucide-react';
 
 const ProductView = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,11 +12,7 @@ const ProductView = () => {
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [userInput, setUserInput] = useState('');
   const [added, setAdded] = useState(false);
-  
-  // Tab State
   const [activeTab, setActiveTab] = useState<'desc' | 'reviews'>('desc');
-  
-  // Review Form State
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
 
@@ -31,7 +27,6 @@ const ProductView = () => {
   const isLiked = user?.wishlist?.includes(product.id);
   const finalPrice = product.price - (product.price * (product.discountPercent / 100));
 
-  // Filter Comments for this product
   const productComments = comments.filter(c => c.targetId === product.id && c.isApproved && c.type === 'product');
   const avgRating = productComments.length > 0 
       ? productComments.reduce((acc, c) => acc + (c.rating || 0), 0) / productComments.length 
@@ -78,209 +73,175 @@ const ProductView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gaming-dark py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate('/')} className="flex items-center text-gray-400 hover:text-white mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Mağazaya Qayıt
+    <div className="min-h-screen pt-24 pb-10 px-4">
+      <div className="max-w-6xl mx-auto">
+        <button onClick={() => navigate('/')} className="flex items-center text-gray-400 hover:text-white mb-8 group transition-colors">
+            <div className="bg-white/5 p-2 rounded-full mr-2 group-hover:bg-white/10">
+                <ArrowLeft className="w-4 h-4" />
+            </div>
+            Mağazaya Qayıt
         </button>
 
-        <div className="bg-gaming-card rounded-2xl border border-gray-800 overflow-hidden shadow-2xl animate-fade-in mb-8">
-          <div className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Image Section */}
-              <div className="w-full md:w-1/3">
-                  <img src={product.image} alt={product.title} className="w-full rounded-xl object-cover aspect-square shadow-lg border border-gray-700" />
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+            
+            {/* Image Side */}
+            <div className="relative">
+                <div className="aspect-square rounded-3xl overflow-hidden glass border border-white/10 relative z-10">
+                    <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+                </div>
+                {/* Back glow */}
+                <div className="absolute top-10 -left-10 w-full h-full bg-primary/20 blur-[100px] rounded-full z-0"></div>
+            </div>
 
-              {/* Details Section */}
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-2">
-                    <h1 className="text-3xl font-black text-white uppercase italic tracking-wide">{product.title}</h1>
+            {/* Info Side */}
+            <div className="flex flex-col justify-center">
+                <div className="flex justify-between items-start mb-4">
+                    <h1 className="text-4xl font-bold text-white leading-tight">{product.title}</h1>
                     <button 
                         onClick={handleWishlist}
-                        className={`p-3 rounded-full border transition-all ${isLiked ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-slate-800 border-gray-700 text-gray-400 hover:text-white'}`}
+                        className={`p-3 rounded-full border transition-all ${isLiked ? 'bg-red-500 text-white border-red-500' : 'glass border-white/10 text-gray-400 hover:text-white'}`}
                     >
-                        <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                        <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
                     </button>
                 </div>
 
-                {/* Rating Stars Summary */}
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="flex text-yellow-400">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="flex text-amber-400">
                         {[1,2,3,4,5].map(star => (
-                            <Star key={star} className={`w-4 h-4 ${star <= Math.round(avgRating) ? 'fill-current' : 'text-gray-600'}`} />
+                            <Star key={star} className={`w-4 h-4 ${star <= Math.round(avgRating) ? 'fill-current' : 'text-gray-700'}`} />
                         ))}
                     </div>
                     <span className="text-sm text-gray-400">({productComments.length} rəy)</span>
+                    <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
+                    <span className="text-sm text-primary font-medium flex items-center gap-1"><ShieldCheck className="w-4 h-4"/> Rəsmi Zəmanət</span>
                 </div>
-                
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="text-gaming-neon font-black text-4xl">{finalPrice.toFixed(2)} ₼</div>
+
+                <div className="flex items-end gap-4 mb-8 p-6 glass rounded-2xl border-l-4 border-primary">
+                    <div className="flex flex-col">
+                         <span className="text-sm text-gray-400 mb-1">Qiymət</span>
+                         <div className="text-4xl font-bold text-white">{finalPrice.toFixed(2)} <span className="text-primary text-xl">₼</span></div>
+                    </div>
                     {product.discountPercent > 0 && (
-                        <div className="flex flex-col">
-                            <span className="text-gray-500 line-through text-sm">{product.price.toFixed(2)} ₼</span>
-                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded font-bold">-{product.discountPercent}%</span>
+                        <div className="mb-2">
+                             <span className="text-lg text-gray-500 line-through mr-2">{product.price.toFixed(2)} ₼</span>
+                             <span className="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded font-bold">-{product.discountPercent}%</span>
                         </div>
                     )}
                 </div>
 
                 {product.requiresInput && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-bold text-gray-300 mb-2">
-                      {product.inputLabel || "Account ID / Link"} <span className="text-red-500">*</span>
+                  <div className="mb-8">
+                    <label className="block text-sm font-bold text-gray-300 mb-2 pl-1">
+                      {product.inputLabel || "Account ID / Link"} <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      className="w-full bg-slate-900 border border-gray-600 rounded-xl p-4 text-white focus:border-gaming-neon outline-none transition-all shadow-inner"
-                      placeholder="Məlumatı bura daxil edin..."
+                      className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-4 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                      placeholder="Məlumatı daxil edin..."
                     />
                   </div>
                 )}
 
                 <div className="flex gap-4">
                     <button
-                    onClick={handleAddToCart}
-                    className={`flex-1 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg transform hover:-translate-y-0.5
-                        ${added ? 'bg-green-600 text-white' : 'bg-gaming-neon hover:bg-cyan-400 text-black'}`}
+                        onClick={handleAddToCart}
+                        className={`flex-1 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:translate-y-[-2px]
+                            ${added ? 'bg-green-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}
                     >
-                    {added ? (
-                        <>
-                            <CheckCircle className="w-5 h-5" /> Səbətə Əlavə Edildi
-                        </>
-                    ) : (
-                        <>
-                            <ShoppingCart className="w-5 h-5" /> Səbətə At
-                        </>
-                    )}
+                        {added ? (
+                            <>
+                                <CheckCircle className="w-5 h-5" /> Əlavə olundu
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="w-5 h-5" /> Səbətə At
+                            </>
+                        )}
                     </button>
                     
-                    <div className="p-4 bg-slate-800 rounded-xl border border-gray-700 flex items-center justify-center text-gray-400" title="Ani Təslimat">
-                        <ShieldCheck className="w-6 h-6 text-green-500" />
-                    </div>
+                    <button className="p-4 glass rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                        <MessageSquare className="w-6 h-6" />
+                    </button>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
 
-        {/* TABS: Description & Reviews */}
-        <div className="bg-gaming-card border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-             <div className="flex border-b border-gray-800">
+        {/* Tabs & Content */}
+        <div className="glass rounded-3xl p-1 overflow-hidden">
+            <div className="flex border-b border-white/5 bg-black/20">
                  <button 
                     onClick={() => setActiveTab('desc')}
-                    className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider transition-colors border-b-2 
-                        ${activeTab === 'desc' ? 'border-gaming-neon text-white bg-slate-800' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                    className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider transition-colors 
+                        ${activeTab === 'desc' ? 'text-white border-b-2 border-primary bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
                  >
                      Məhsul Haqqında
                  </button>
                  <button 
                     onClick={() => setActiveTab('reviews')}
-                    className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider transition-colors border-b-2 
-                        ${activeTab === 'reviews' ? 'border-gaming-neon text-white bg-slate-800' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                    className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider transition-colors 
+                        ${activeTab === 'reviews' ? 'text-white border-b-2 border-primary bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
                  >
                      Rəylər ({productComments.length})
                  </button>
-             </div>
+            </div>
 
-             <div className="p-8">
+            <div className="p-8 md:p-12">
                  {activeTab === 'desc' && (
-                     <div className="animate-fade-in">
-                         <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{product.description}</p>
-                         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <div className="bg-slate-900 p-4 rounded-xl border border-gray-800 flex items-center gap-3">
-                                 <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500"><ShieldCheck className="w-5 h-5"/></div>
-                                 <div>
-                                     <h4 className="font-bold text-white">Rəsmi Zəmanət</h4>
-                                     <p className="text-xs text-gray-500">Bütün məhsullar yoxlanılır.</p>
-                                 </div>
-                             </div>
-                             <div className="bg-slate-900 p-4 rounded-xl border border-gray-800 flex items-center gap-3">
-                                 <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500"><CheckCircle className="w-5 h-5"/></div>
-                                 <div>
-                                     <h4 className="font-bold text-white">Ani Təslimat</h4>
-                                     <p className="text-xs text-gray-500">Ödənişdən dərhal sonra.</p>
-                                 </div>
-                             </div>
-                         </div>
+                     <div className="animate-fade-in text-gray-300 leading-relaxed whitespace-pre-wrap text-lg">
+                         {product.description}
                      </div>
                  )}
 
                  {activeTab === 'reviews' && (
-                     <div className="animate-fade-in">
-                         {/* Review List */}
-                         <div className="space-y-6 mb-10">
-                             {productComments.length === 0 ? (
-                                 <p className="text-center text-gray-500 py-4">Bu məhsul üçün hələ rəy yoxdur.</p>
-                             ) : (
-                                 productComments.map((comment) => (
-                                     <div key={comment.id} className="bg-slate-900/50 p-4 rounded-xl border border-gray-800">
-                                         <div className="flex justify-between items-start mb-2">
-                                             <div className="flex items-center gap-3">
-                                                 <div className="w-10 h-10 bg-gaming-accent rounded-full flex items-center justify-center font-bold text-white">
-                                                     {comment.author.charAt(0)}
-                                                 </div>
-                                                 <div>
-                                                     <p className="font-bold text-white text-sm">{comment.author}</p>
-                                                     <div className="flex text-yellow-400 text-xs">
-                                                        {[1,2,3,4,5].map(s => (
-                                                            <Star key={s} className={`w-3 h-3 ${s <= (comment.rating || 5) ? 'fill-current' : 'text-gray-700'}`} />
-                                                        ))}
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                             <span className="text-xs text-gray-600">{new Date(comment.date).toLocaleDateString()}</span>
-                                         </div>
-                                         <p className="text-gray-300 text-sm ml-13 pl-1">{comment.content}</p>
-                                     </div>
-                                 ))
-                             )}
-                         </div>
-
-                         {/* Add Review Form */}
-                         {isAuthenticated ? (
-                             <div className="bg-slate-800 p-6 rounded-xl border border-gray-700">
-                                 <h3 className="font-bold text-white mb-4 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-gaming-neon"/> Rəy Yaz</h3>
-                                 <form onSubmit={submitReview}>
-                                     <div className="mb-4">
-                                         <label className="block text-xs text-gray-400 mb-2 font-bold uppercase">Qiymətləndirmə</label>
-                                         <div className="flex gap-2">
-                                             {[1, 2, 3, 4, 5].map((star) => (
-                                                 <button
-                                                     key={star}
-                                                     type="button"
-                                                     onClick={() => setReviewRating(star)}
-                                                     className={`transition-transform hover:scale-110 ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-600'}`}
-                                                 >
-                                                     <Star className="w-8 h-8 fill-current" />
-                                                 </button>
-                                             ))}
-                                         </div>
-                                     </div>
-                                     <div className="mb-4">
-                                         <label className="block text-xs text-gray-400 mb-2 font-bold uppercase">Rəyiniz</label>
-                                         <textarea
-                                             className="w-full bg-slate-900 border border-gray-600 rounded-lg p-3 text-white focus:border-gaming-neon outline-none h-24 resize-none"
-                                             placeholder="Məhsul haqqında fikirlərinizi bölüşün..."
-                                             value={reviewText}
-                                             onChange={(e) => setReviewText(e.target.value)}
-                                         ></textarea>
-                                     </div>
-                                     <button type="submit" className="bg-gaming-neon hover:bg-cyan-400 text-black font-bold py-2 px-6 rounded-lg flex items-center gap-2 transition-colors">
-                                         <Send className="w-4 h-4" /> Göndər
-                                     </button>
-                                 </form>
+                     <div className="animate-fade-in space-y-8">
+                         {productComments.length === 0 ? (
+                             <div className="text-center py-10 bg-white/5 rounded-2xl">
+                                 <p className="text-gray-500">Bu məhsul üçün hələ rəy yoxdur.</p>
                              </div>
                          ) : (
-                             <div className="bg-slate-800/50 p-6 rounded-xl border border-gray-700 text-center">
-                                 <p className="text-gray-400 mb-4">Rəy yazmaq üçün hesabınıza daxil olmalısınız.</p>
-                                 <button onClick={() => navigate('/auth')} className="text-gaming-neon hover:underline font-bold">Giriş Et</button>
-                             </div>
+                             productComments.map((comment) => (
+                                 <div key={comment.id} className="bg-white/5 p-6 rounded-2xl border border-white/5">
+                                     <div className="flex justify-between items-start mb-3">
+                                         <div className="flex items-center gap-3">
+                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center font-bold text-white shadow-lg">
+                                                 {comment.author.charAt(0)}
+                                             </div>
+                                             <div>
+                                                 <p className="font-bold text-white">{comment.author}</p>
+                                                 <div className="flex text-amber-400 text-xs mt-0.5">
+                                                    {[1,2,3,4,5].map(s => (
+                                                        <Star key={s} className={`w-3 h-3 ${s <= (comment.rating || 5) ? 'fill-current' : 'text-gray-700'}`} />
+                                                    ))}
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <span className="text-xs text-gray-600">{new Date(comment.date).toLocaleDateString()}</span>
+                                     </div>
+                                     <p className="text-gray-300 pl-13 ml-13">{comment.content}</p>
+                                 </div>
+                             ))
+                         )}
+
+                         {isAuthenticated && (
+                             <form onSubmit={submitReview} className="mt-8 pt-8 border-t border-white/5">
+                                 <h3 className="font-bold text-white mb-4">Rəy Yazın</h3>
+                                 <textarea
+                                     className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-4 text-white focus:border-primary outline-none h-32 resize-none mb-4"
+                                     placeholder="Fikirləriniz..."
+                                     value={reviewText}
+                                     onChange={(e) => setReviewText(e.target.value)}
+                                 ></textarea>
+                                 <button type="submit" className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-8 rounded-xl transition-colors">
+                                     Göndər
+                                 </button>
+                             </form>
                          )}
                      </div>
                  )}
-             </div>
+            </div>
         </div>
 
       </div>
