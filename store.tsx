@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product, Order, PaymentMethod, User, OrderStatus, ProductType, Category, SiteSettings, Blog, Agreement, Comment, CartItem, PromoCode, Notification, StockCode, ActivityLog } from './types';
 import { INITIAL_PRODUCTS, INITIAL_PAYMENT_METHODS, MOCK_USERS, INITIAL_CATEGORIES, INITIAL_SETTINGS, MOCK_PROMO_CODES } from './constants';
@@ -78,7 +79,6 @@ interface AppContextType {
   toggleCommentApproval: (id: string) => void;
   deleteComment: (id: string) => void;
   
-  // Giveaways & Mystery Boxes (Static mock functions to prevent crash if called)
   giveaways: any[];
   joinGiveaway: (id: string) => void;
   mysteryBoxes: any[];
@@ -87,19 +87,44 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Helper for LocalStorage
+const usePersistedState = <T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
+  const [state, setState] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(state));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [key, state]);
+
+  return [state, setState];
+};
+
 export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [usersList, setUsersList] = useState<User[]>(MOCK_USERS);
+  // Use persisted state for critical data
+  const [user, setUser] = usePersistedState<User | null>('ds_user', null);
+  const [usersList, setUsersList] = usePersistedState<User[]>('ds_users', MOCK_USERS);
+  const [orders, setOrders] = usePersistedState<Order[]>('ds_orders', []);
+  const [cart, setCart] = usePersistedState<CartItem[]>('ds_cart', []);
+  const [stocks, setStocks] = usePersistedState<StockCode[]>('ds_stocks', []);
+  
+  // Non-critical data (or static)
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(INITIAL_PAYMENT_METHODS);
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>(MOCK_PROMO_CODES);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  
-  const [stocks, setStocks] = useState<StockCode[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
   // CMS State
@@ -349,7 +374,13 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
             alert("Balansınızda kifayət qədər vəsait yoxdur.");
             return false;
         }
-        updateUserBalance(-totalPrice);
+        
+        // Immediate deduction from current session user state
+        const newBalance = user.balance - totalPrice;
+        const updatedUser = { ...user, balance: newBalance };
+        setUser(updatedUser);
+        setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+
         const orderId = `ord-${Date.now()}`;
         let autoDeliveredContent = "";
         let isFullyDelivered = true;
@@ -394,8 +425,7 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
             d.setDate(d.getDate() + maxDuration);
             expiryDate = d.toISOString();
         } 
-        // If lifetime, expiryDate remains undefined
-
+        
         const newOrder: Order = {
             id: orderId,
             userId: user.id,
@@ -513,16 +543,23 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
            }
       }
       sendNotification(order.userId, "Sifariş Tamamlandı!", `Sifarişiniz (#${order.id.slice(-6)}) təsdiqləndi.`, 'success');
+      
+      // Handle Balance Topup Completion
       if (order.items.some(i => i.type === ProductType.BALANCE)) {
-         updateUserBalance(order.totalPrice);
+         const targetUser = usersList.find(u => u.id === order.userId);
+         if(targetUser) {
+             const updatedTarget = { ...targetUser, balance: targetUser.balance + order.totalPrice };
+             setUsersList(prev => prev.map(u => u.id === order.userId ? updatedTarget : u));
+             // If it's the current user, update session
+             if(user && user.id === order.userId) setUser(updatedTarget);
+         }
          sendNotification(order.userId, "Balans Artırıldı", `${order.totalPrice} AZN balansınıza əlavə olundu.`, 'success');
       }
       
       let expiryDate = order.expiryDate;
-      // Recalculate expiry if not set
       if (!expiryDate && order.items.length >= 1) {
           if (order.items.some(i => i.isLifetime)) {
-              expiryDate = undefined; // Lifetime
+              expiryDate = undefined; 
           } else if (order.items[0].durationDays) {
             const d = new Date();
             d.setDate(d.getDate() + order.items[0].durationDays);
@@ -540,7 +577,12 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
     if(order) {
         sendNotification(order.userId, "Sifariş Ləğv Edildi", `Sifarişiniz (#${order.id.slice(-6)}) ləğv edildi.`, 'error');
         if (order.paymentMethodName === 'Wallet Balance') {
-            updateUserBalance(order.totalPrice);
+            const targetUser = usersList.find(u => u.id === order.userId);
+            if(targetUser) {
+                 const updatedTarget = { ...targetUser, balance: targetUser.balance + order.totalPrice };
+                 setUsersList(prev => prev.map(u => u.id === order.userId ? updatedTarget : u));
+                 if(user && user.id === order.userId) setUser(updatedTarget);
+            }
             sendNotification(order.userId, "Refund", `${order.totalPrice} AZN balansınıza qaytarıldı.`, 'success');
             logActivity('Order Refunded', `Order #${orderId} məbləği geri qaytarıldı.`);
         }
