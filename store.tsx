@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product, Order, PaymentMethod, User, OrderStatus, ProductType, Category, SiteSettings, Blog, Agreement, Comment, CartItem, PromoCode, Notification, StockCode, ActivityLog, HeroSlide } from './types';
+import { Product, Order, PaymentMethod, User, OrderStatus, ProductType, Category, SiteSettings, Blog, Agreement, Comment, CartItem, PromoCode, Notification, StockCode, ActivityLog, HeroSlide, Page } from './types';
 import { INITIAL_PRODUCTS, INITIAL_PAYMENT_METHODS, MOCK_USERS, INITIAL_CATEGORIES, INITIAL_SETTINGS, MOCK_PROMO_CODES, INITIAL_HERO_SLIDES } from './constants';
 
 interface AppContextType {
@@ -15,6 +15,7 @@ interface AppContextType {
   siteSettings: SiteSettings;
   blogs: Blog[];
   agreements: Agreement[];
+  pages: Page[]; // New Pages State
   comments: Comment[];
   cart: CartItem[];
   notifications: Notification[];
@@ -84,6 +85,12 @@ interface AppContextType {
   deleteBlog: (id: string) => void;
   addAgreement: (agreement: Agreement) => void;
   deleteAgreement: (id: string) => void;
+  
+  // Pages Logic
+  addPage: (page: Page) => void;
+  updatePage: (id: string, page: Partial<Page>) => void;
+  deletePage: (id: string) => void;
+
   addComment: (comment: Omit<Comment, 'id' | 'date' | 'isApproved'>) => void;
   toggleCommentApproval: (id: string) => void;
   deleteComment: (id: string) => void;
@@ -145,6 +152,15 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
     { id: 'a1', title: 'İstifadəçi Razılaşması', content: 'Saytımızdan istifadə edərkən...' },
     { id: 'a2', title: 'Zəmanət Şərtləri', content: 'Bütün məhsullara rəsmi zəmanət verilir...' }
   ]);
+  
+  // Initialize Default Pages
+  const [pages, setPages] = usePersistedState<Page[]>('ds_pages', [
+      { id: 'pg1', title: 'Haqqımızda', slug: 'haqqimizda', content: 'GamePay Azərbaycanın ən böyük rəqəmsal oyun platformasıdır...', category: 'corporate', isActive: true },
+      { id: 'pg2', title: 'Gizlilik Politikası', slug: 'gizlilik-politikasi', content: 'Sizin məlumatlarınız bizim üçün önəmlidir...', category: 'agreement', isActive: true },
+      { id: 'pg3', title: 'İstifadəçi Sözləşməsi', slug: 'istifadeci-sozlesmesi', content: 'Sayt istifadə qaydaları...', category: 'agreement', isActive: true },
+      { id: 'pg4', title: 'İptal & İade Koşulları', slug: 'iptal-iade-kosullari', content: 'Rəqəmsal məhsulların geri qaytarılması...', category: 'agreement', isActive: true },
+  ]);
+
   const [comments, setComments] = useState<Comment[]>([
     { id: 'c1', author: 'Sənan Q.', content: 'Canva Pro ömürlük aldım, dərhal aktivləşdi. Əla!', type: 'product', targetId: 'p2', isApproved: true, date: new Date().toISOString(), rating: 5 },
     { id: 'c2', author: 'Elvin M.', content: 'PUBG UC anında gəldi, təşəkkürlər.', type: 'site', isApproved: true, date: new Date().toISOString(), rating: 5 },
@@ -622,6 +638,12 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
   const deleteBlog = (id: string) => setBlogs(prev => prev.filter(b => b.id !== id));
   const addAgreement = (agreement: Agreement) => setAgreements(prev => [...prev, agreement]);
   const deleteAgreement = (id: string) => setAgreements(prev => prev.filter(a => a.id !== id));
+  
+  // Page Functions
+  const addPage = (page: Page) => { setPages(prev => [...prev, page]); logActivity('Page Added', page.title); };
+  const updatePage = (id: string, page: Partial<Page>) => { setPages(prev => prev.map(p => p.id === id ? { ...p, ...page } : p)); logActivity('Page Updated', id); };
+  const deletePage = (id: string) => { setPages(prev => prev.filter(p => p.id !== id)); logActivity('Page Deleted', id); };
+
   const addComment = (newCommentData: Omit<Comment, 'id' | 'date' | 'isApproved'>) => {
       const newComment: Comment = {
           id: `cmt-${Date.now()}`,
@@ -644,7 +666,7 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
       user, usersList, isAuthenticated: !!user,
       products, categories, orders, paymentMethods, promoCodes, siteSettings, cart, notifications,
       stocks, activityLogs,
-      blogs, agreements, comments, heroSlides,
+      blogs, agreements, comments, heroSlides, pages,
       login, register, logout, requestPasswordReset, updateUserProfile, adminUpdateUserPassword, toggleUserBan, generateResetLink, confirmPasswordReset, changePassword,
       addToCart, updateCartQuantity, removeFromCart, clearCart,
       placeOrder, placeBalanceOrder, processOrder, completeOrder, cancelOrder, updateUserBalance, markNotificationRead, clearNotifications,
@@ -653,6 +675,7 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
       addCategory, deleteCategory, togglePopularCategory,
       updateSiteSettings,
       addBlog, deleteBlog, addAgreement, deleteAgreement, toggleCommentApproval, deleteComment, addComment,
+      addPage, updatePage, deletePage,
       addStock, deleteStock, toggleWishlist,
       addHeroSlide, deleteHeroSlide,
       giveaways: [], 

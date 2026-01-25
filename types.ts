@@ -102,6 +102,18 @@ export interface Blog {
   image: string;
 }
 
+// Yeni CMS Page Tipi
+export interface Page {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  category: 'corporate' | 'agreement' | 'help'; // Haqqımızda, Sözləşmə, Üzvlük/Kömək
+  isActive: boolean;
+  seoTitle?: string;
+  seoDesc?: string;
+}
+
 export interface Agreement {
   id: string;
   title: string; 

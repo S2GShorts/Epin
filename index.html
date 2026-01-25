@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>DigiStore | Premium Rəqəmsal Həllər</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,6 +15,9 @@
           extend: {
             fontFamily: {
               sans: ['"Inter"', 'sans-serif'],
+            },
+            padding: {
+              'safe': 'env(safe-area-inset-bottom)',
             },
             colors: {
               background: '#0F1115', // Dark Base
@@ -106,19 +109,28 @@
         transform: translateY(-4px);
       }
 
-      /* Primary Button Style */
+      /* Premium Purple Gradient Button Style */
       .btn-primary {
         background: linear-gradient(135deg, #8B5CF6, #6366F1);
         color: white;
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
         transition: all 0.3s ease;
       }
       .btn-primary:hover {
-        box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
-        transform: translateY(-1px);
+        box-shadow: 0 0 35px rgba(139, 92, 246, 0.8);
+        transform: translateY(-2px);
+      }
+      
+      /* Hide Scrollbar on some elements */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
       }
 
-      /* Custom Scrollbar */
+      /* Custom Scrollbar Global */
       ::-webkit-scrollbar {
         width: 8px;
       }

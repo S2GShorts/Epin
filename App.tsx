@@ -3,6 +3,7 @@ import React from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import ProductView from './pages/ProductView';
 import Profile from './pages/Profile';
@@ -11,7 +12,9 @@ import Auth from './pages/Auth';
 import Cart from './pages/Cart';
 import News from './pages/News';
 import BlogView from './pages/BlogView'; 
-import Rules from './pages/Rules';
+import Rules from './pages/Rules'; // Keep for static fallback
+import DynamicPage from './pages/DynamicPage'; // New CMS Page
+import AllCategories from './pages/AllCategories'; // New Grid Page
 import Balance from './pages/Balance';
 import Contact from './pages/Contact'; 
 import CategoryPage from './pages/CategoryPage';
@@ -26,13 +29,15 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === '/auth';
 
+  // FIX: pt-24 on Desktop, pt-20 on Mobile to prevent header overlap
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdminPage && !isAuthPage && <Navbar />}
-      <main className="flex-grow relative">
+      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-24 pb-24 md:pb-0' : ''}`}>
         {children}
       </main>
       {!isAdminPage && !isAuthPage && <Footer />}
+      {!isAdminPage && !isAuthPage && <BottomNav />}
       {!isAdminPage && !isAuthPage && <ChatWidget />}
       {!isAdminPage && !isAuthPage && <CartWidget />}
       {!isAdminPage && !isAuthPage && <FloatingBalance />}
@@ -52,6 +57,8 @@ const App = () => {
             <Route path="/news" element={<News />} />
             <Route path="/news/:id" element={<BlogView />} />
             <Route path="/rules" element={<Rules />} />
+            <Route path="/page/:slug" element={<DynamicPage />} /> {/* CMS Pages */}
+            <Route path="/categories" element={<AllCategories />} /> {/* Grid Categories */}
             <Route path="/balance" element={<Balance />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/category/:id" element={<CategoryPage />} />

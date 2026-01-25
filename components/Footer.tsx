@@ -2,17 +2,21 @@
 import React from 'react';
 import { useApp } from '../store';
 import { Link, useNavigate } from 'react-router-dom';
-import { Facebook, Instagram, Send, Youtube, MessageCircle, Mail, MapPin, Phone, ChevronRight, Smartphone } from 'lucide-react';
+import { Instagram, Send, MessageCircle, Phone, ChevronRight, Smartphone } from 'lucide-react';
 
 const Footer = () => {
-  const { siteSettings, categories, agreements, user } = useApp();
+  const { siteSettings, categories, pages, user } = useApp();
   const navigate = useNavigate();
 
   // Get top 5 popular categories
   const popularCategories = categories.filter(c => c.isPopular).slice(0, 5);
+  
+  // Filter pages by category
+  const corporatePages = pages.filter(p => p.category === 'corporate' && p.isActive);
+  const agreementPages = pages.filter(p => p.category === 'agreement' && p.isActive);
 
   return (
-    <footer className="bg-[#0b0d12] border-t border-white/5 pt-20 pb-10 font-sans mt-auto">
+    <footer className="bg-[#0b0d12] border-t border-white/5 pt-20 pb-28 md:pb-10 font-sans mt-auto">
       <div className="max-w-7xl mx-auto px-4">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
@@ -32,25 +36,27 @@ const Footer = () => {
                     </li>
                 ))}
                 <li>
-                    <Link to="/#categories" className="text-primary hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 font-bold mt-2">
+                    <Link to="/categories" className="text-primary hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 font-bold mt-2">
                         <ChevronRight className="w-3 h-3" /> Bütün Kateqoriyalar
                     </Link>
                 </li>
             </ul>
           </div>
 
-          {/* Column 2: About Us */}
+          {/* Column 2: About Us (Dynamic) */}
           <div>
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-3">
                 <span className="w-1 h-6 bg-secondary rounded-full shadow-[0_0_10px_#6366F1]"></span>
                 Haqqımızda
             </h3>
             <ul className="space-y-3">
-                <li>
-                    <Link to="/contact" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
-                        <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-secondary transition-colors" /> Haqqımızda
-                    </Link>
-                </li>
+                {corporatePages.map(page => (
+                    <li key={page.id}>
+                        <Link to={`/page/${page.slug}`} className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
+                            <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-secondary transition-colors" /> {page.title}
+                        </Link>
+                    </li>
+                ))}
                 <li>
                     <Link to="/contact" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
                         <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-secondary transition-colors" /> Çözüm Mərkəzi (Əlaqə)
@@ -64,30 +70,20 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Agreements */}
+          {/* Column 3: Agreements (Dynamic) */}
           <div>
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-3">
                 <span className="w-1 h-6 bg-accent rounded-full shadow-[0_0_10px_#EC4899]"></span>
                 Sözləşmələr
             </h3>
             <ul className="space-y-3">
-                <li>
-                    <Link to="/rules" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
-                        <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-accent transition-colors" /> Gizlilik Siyasəti
-                    </Link>
-                </li>
-                {agreements.slice(0, 3).map(rule => (
-                    <li key={rule.id}>
-                        <Link to="/rules" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
-                            <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-accent transition-colors" /> {rule.title}
+                {agreementPages.map(page => (
+                    <li key={page.id}>
+                        <Link to={`/page/${page.slug}`} className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
+                            <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-accent transition-colors" /> {page.title}
                         </Link>
                     </li>
                 ))}
-                <li>
-                    <Link to="/rules" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 text-sm flex items-center gap-2 group">
-                        <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-accent transition-colors" /> İptal & İade Koşulları
-                    </Link>
-                </li>
             </ul>
           </div>
 

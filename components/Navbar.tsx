@@ -1,13 +1,11 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Bell, LogOut, ChevronDown, User as UserIcon, Heart, Search, LogIn, UserPlus, Plus } from 'lucide-react';
+import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut } from 'lucide-react';
 import { useApp } from '../store';
-import { Notification } from '../types';
 
 const Navbar = () => {
   const { user, isAuthenticated, notifications, markNotificationRead, clearNotifications, logout } = useApp();
-  const [isOpen, setIsOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +34,6 @@ const Navbar = () => {
       e.preventDefault();
       if(searchQuery.trim()) {
           navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-          setIsOpen(false); // Close mobile menu if open
       }
   };
 
@@ -44,9 +41,8 @@ const Navbar = () => {
 
   const navLinks = [
       { name: 'Ana Səhifə', path: '/' },
-      { name: 'Kateqoriyalar', path: '/#categories' }, 
+      { name: 'Kateqoriyalar', path: '/categories' }, 
       { name: 'Xəbərlər', path: '/news' }, 
-      { name: 'Qaydalar', path: '/rules' },
       { name: 'Əlaqə', path: '/contact' },
   ];
 
@@ -57,24 +53,6 @@ const Navbar = () => {
       logout();
       navigate('/');
       setProfileOpen(false);
-  };
-
-  const handleLinkClick = (path: string) => {
-    if (path.startsWith('/#')) {
-        const id = path.replace('/#', '');
-        if (location.pathname !== '/') {
-             navigate('/');
-             setTimeout(() => {
-                 const el = document.getElementById(id);
-                 if(el) el.scrollIntoView({behavior: 'smooth'});
-             }, 100);
-        } else {
-            const el = document.getElementById(id);
-            if(el) el.scrollIntoView({behavior: 'smooth'});
-        }
-    } else {
-        navigate(path);
-    }
   };
 
   return (
@@ -96,9 +74,9 @@ const Navbar = () => {
           <div className="hidden md:flex flex-1 items-center justify-center px-8">
               <div className="flex items-center space-x-1 mr-6">
                 {navLinks.map((link, idx) => (
-                    <button 
+                    <Link 
                         key={idx} 
-                        onClick={() => handleLinkClick(link.path)}
+                        to={link.path}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                             isActive(link.path) 
                             ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
@@ -106,7 +84,7 @@ const Navbar = () => {
                         }`}
                     >
                         {link.name}
-                    </button>
+                    </Link>
                 ))}
               </div>
               
@@ -123,10 +101,10 @@ const Navbar = () => {
           </div>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-4 shrink-0">
                {isAuthenticated ? (
                  <>
-                  {/* Notifications */}
+                  {/* Notifications - Visible on Mobile & Desktop */}
                   <div className="relative" ref={notifRef}>
                       <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 text-gray-400 hover:text-white transition-colors">
                           <Bell className="w-6 h-6" />
@@ -161,8 +139,8 @@ const Navbar = () => {
                       )}
                   </div>
 
-                  {/* Profile Dropdown */}
-                  <div className="relative" ref={profileRef}>
+                  {/* Desktop Profile Dropdown */}
+                  <div className="hidden md:block relative" ref={profileRef}>
                       <button 
                         onClick={() => setProfileOpen(!profileOpen)}
                         className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full border border-white/10 hover:bg-white/5 transition-all bg-black/20"
@@ -203,7 +181,7 @@ const Navbar = () => {
                   </div>
                  </>
                ) : (
-                 <div className="flex items-center gap-2">
+                 <div className="hidden md:flex items-center gap-2">
                      <Link to="/auth" className="text-white text-sm font-bold hover:text-primary transition-colors px-3 py-2">
                         Daxil Ol
                      </Link>
@@ -213,95 +191,8 @@ const Navbar = () => {
                  </div>
                )}
           </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center gap-4">
-             <button onClick={() => setIsOpen(!isOpen)} className="text-white p-2 bg-white/5 rounded-lg border border-white/10">
-                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-             </button>
-          </div>
         </div>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <div className="md:hidden glass border-t border-white/10 absolute top-full w-full animate-slide-up h-[calc(100vh-80px)] overflow-y-auto">
-          <div className="p-4 space-y-4">
-            
-            {/* User Info Card (Mobile) */}
-            {isAuthenticated && (
-                <div className="bg-gradient-to-br from-surface to-surfaceHighlight p-4 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-lg">
-                    <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                            {user?.name.charAt(0)}
-                        </div>
-                        <div>
-                            <p className="font-bold text-white text-lg">{user?.name}</p>
-                            <p className="text-xs text-gray-400">{user?.email}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
-                        <div>
-                            <p className="text-xs text-gray-400 uppercase font-bold">Balans</p>
-                            <p className="text-xl font-mono text-primary font-bold">{user?.balance.toFixed(2)} ₼</p>
-                        </div>
-                        <button onClick={() => { navigate('/balance'); setIsOpen(false); }} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors">
-                            <Plus className="w-4 h-4" /> Artır
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Mobile Search */}
-            <form onSubmit={handleSearch} className="relative">
-                <input 
-                    type="text" 
-                    placeholder="Axtar..." 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:border-primary outline-none"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
-            </form>
-
-            <div className="space-y-1">
-                {navLinks.map((link, idx) => (
-                    <button 
-                        key={idx} 
-                        onClick={() => { handleLinkClick(link.path); setIsOpen(false); }}
-                        className={`block w-full text-left px-4 py-4 rounded-xl text-base font-medium border border-transparent ${
-                            isActive(link.path) ? 'bg-white/10 text-white border-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                        }`}
-                    >
-                        {link.name}
-                    </button>
-                ))}
-            </div>
-
-            <div className="h-px bg-white/10 my-2"></div>
-
-            {!isAuthenticated ? (
-                 <div className="grid grid-cols-2 gap-4">
-                     <Link to="/auth" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl text-base font-bold text-white bg-white/5 border border-white/10">
-                         <LogIn className="w-4 h-4"/> Giriş
-                     </Link>
-                     <Link to="/auth" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl text-base font-bold text-black bg-primary">
-                         <UserPlus className="w-4 h-4"/> Qeydiyyat
-                     </Link>
-                 </div>
-            ) : (
-                <div className="space-y-2">
-                    <Link to="/profile" onClick={() => setIsOpen(false)} className="block text-center px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10">
-                        Profilə Get
-                    </Link>
-                    <button onClick={() => { handleLogout(); setIsOpen(false); }} className="w-full text-center px-4 py-4 rounded-xl text-base font-bold text-red-400 bg-red-500/5 border border-red-500/10 hover:bg-red-500/10">
-                        Çıxış Et
-                    </button>
-                </div>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
   );
 };
