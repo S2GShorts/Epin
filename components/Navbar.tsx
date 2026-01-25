@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu, X, ShoppingCart } from 'lucide-react';
+import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu } from 'lucide-react';
 import { useApp } from '../store';
 import SideDrawer from './SideDrawer';
 
 const Navbar = () => {
-  const { user, isAuthenticated, notifications, markNotificationRead, clearNotifications, logout, openCart, cart } = useApp();
+  const { user, isAuthenticated, notifications, markNotificationRead, clearNotifications, logout } = useApp();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -120,6 +120,7 @@ const Navbar = () => {
                 
                 {isAuthenticated ? (
                     <>
+                        {/* Balance Display */}
                         <div className="flex items-center gap-3 bg-white/5 border border-white/10 pl-4 pr-1 py-1 rounded-xl">
                             <span className="text-sm font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
                             <button onClick={() => navigate('/balance')} className="bg-primary hover:bg-primary-dark text-white p-1.5 rounded-lg transition-colors shadow-lg shadow-primary/20">
@@ -172,7 +173,7 @@ const Navbar = () => {
             </div>
         </div>
 
-        {/* MOBILE LAYOUT (Text Only / Minimal) */}
+        {/* MOBILE LAYOUT */}
         <div className="md:hidden flex flex-col gap-2">
             <div className="flex items-center justify-between">
                 {/* Text Menu Button */}
@@ -188,7 +189,7 @@ const Navbar = () => {
                     <span className="font-black text-white text-xl tracking-tight">GAME<span className="text-primary">PAY</span></span>
                 </Link>
 
-                {/* Right: Auth or Text Icon */}
+                {/* Right: Auth or Notification */}
                 {isAuthenticated ? (
                      <div className="relative" ref={notifRef}>
                         <button onClick={() => setNotifOpen(!notifOpen)} className="text-white font-bold text-xs bg-white/5 px-3 py-2 rounded-lg border border-white/10 flex items-center gap-1">

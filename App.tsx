@@ -56,7 +56,8 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
 const App = () => {
   return (
     <AppProvider>
-      <Router>
+      {/* @ts-ignore - Future flags needed to suppress warnings */}
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
