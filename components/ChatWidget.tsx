@@ -17,9 +17,9 @@ const ChatWidget = () => {
       { q: "Qaytarılma mümkündür?", a: "Rəqəmsal məhsullar (Key/Hesab) təbiəti etibarilə geri qaytarılmır, lakin işləmirsə dəyişdirilir." }
   ];
 
-  // FIX: bottom-24 for mobile (to clear BottomNav), md:bottom-6 for desktop
+  // FIX: Increased bottom spacing for mobile (bottom-32) to avoid BottomNav overlap when opening the chat window
   return (
-    <div className="fixed bottom-24 md:bottom-6 right-6 z-40 flex flex-col items-end font-sans">
+    <div className="fixed bottom-32 md:bottom-6 right-6 z-40 flex flex-col items-end font-sans">
       
       {isOpen && (
         <div className="mb-4 w-80 md:w-96 glass rounded-3xl shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[500px] border border-white/10">

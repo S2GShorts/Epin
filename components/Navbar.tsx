@@ -79,7 +79,7 @@ const Navbar = () => {
         className={`fixed w-full z-50 transition-all duration-300 border-b 
         ${scrolled 
             ? 'bg-[#0F1115]/95 backdrop-blur-xl border-white/10 shadow-2xl py-2' 
-            : 'bg-transparent border-transparent py-4'}`}
+            : 'bg-transparent border-transparent py-3 md:py-4'}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -169,35 +169,28 @@ const Navbar = () => {
 
         {/* MOBILE LAYOUT (Compact 2 Rows) */}
         <div className="md:hidden flex flex-col gap-3">
-            {/* Row 1: Menu Icon, Logo, Right Section (Balans, Notif - No Profile) */}
+            {/* Row 1: Menu Icon, Logo, Right Section (Notification ONLY - Removed Profile/Balance for simpler look) */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => setDrawerOpen(true)} 
-                        className="p-2 bg-white/5 rounded-xl text-gray-300 border border-white/10 active:scale-95 transition-transform"
+                        className="p-2 bg-white/5 rounded-xl text-gray-300 border border-white/10 active:scale-95 transition-transform backdrop-blur-md"
                     >
                         <Menu className="w-6 h-6 text-white" />
                     </button>
                     
                     <Link to="/" className="flex items-center gap-1">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg">D</div>
-                        <span className="font-bold text-white text-lg tracking-tight">GAME<span className="text-primary">PAY</span></span>
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shadow-lg">D</div>
+                        <span className="font-bold text-white text-lg tracking-tight drop-shadow-md">GAME<span className="text-primary">PAY</span></span>
                     </Link>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {isAuthenticated && (
-                        <div onClick={() => navigate('/balance')} className="flex items-center gap-1 bg-white/5 border border-white/10 px-2 py-1.5 rounded-lg active:scale-95 transition-transform">
-                            <span className="text-xs font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
-                            <div className="bg-primary rounded p-0.5"><Plus className="w-2 h-2 text-black"/></div>
-                        </div>
-                    )}
-                    
                     {/* Notification */}
                     <div className="relative" ref={notifRef}>
-                        <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 text-gray-400 hover:text-white">
-                            <Bell className="w-6 h-6" />
-                            {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0F1115]"></span>}
+                        <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 text-gray-400 hover:text-white bg-white/5 rounded-xl border border-white/10 backdrop-blur-md">
+                            <Bell className="w-5 h-5" />
+                            {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0F1115]"></span>}
                         </button>
                         {notifOpen && renderNotifications()}
                     </div>
@@ -209,11 +202,11 @@ const Navbar = () => {
                 <input 
                     type="text" 
                     placeholder="Oyun, UC, VP axtar..." 
-                    className="w-full bg-surfaceHighlight border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:border-primary outline-none shadow-inner"
+                    className="w-full bg-surfaceHighlight/80 backdrop-blur-md border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:border-primary outline-none shadow-inner"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-3 top-2 w-4 h-4 text-gray-500" />
             </form>
         </div>
 
