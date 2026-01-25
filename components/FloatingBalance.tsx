@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '../store';
 import { Wallet, Plus } from 'lucide-react';
@@ -10,7 +11,7 @@ const FloatingBalance = () => {
   if (!isAuthenticated || !user) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-40 animate-fade-in hidden md:flex">
+    <div className="fixed bottom-32 md:bottom-24 left-6 z-40 animate-fade-in hidden md:flex">
         <div className="bg-slate-900/90 backdrop-blur-md border border-gray-700 rounded-full p-1 pl-4 pr-1 shadow-2xl flex items-center gap-3 group transition-all hover:border-gaming-neon">
             <div className="flex flex-col">
                 <span className="text-[10px] text-gray-400 uppercase font-bold leading-none mb-0.5">Balans</span>

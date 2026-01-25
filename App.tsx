@@ -46,7 +46,8 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
       {!isAdminPage && !isAuthPage && <BottomNav />}
       {!isAdminPage && !isAuthPage && <ChatWidget />}
       
-      {/* CartWidget is always mounted to handle drawer state */}
+      {/* Floating Elements */}
+      {!isAdminPage && !isAuthPage && <FloatingBalance />}
       {!isAdminPage && !isAuthPage && <CartWidget />}
     </div>
   );

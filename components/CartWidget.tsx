@@ -5,7 +5,7 @@ import { useApp } from '../store';
 import { useNavigate } from 'react-router-dom';
 
 const CartWidget = () => {
-  const { cart, updateCartQuantity, removeFromCart, isCartOpen, closeCart, placeOrder, paymentMethods, user, isAuthenticated } = useApp();
+  const { cart, updateCartQuantity, removeFromCart, isCartOpen, openCart, closeCart, placeOrder, paymentMethods, user, isAuthenticated } = useApp();
   const navigate = useNavigate();
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'payment'>('cart');
   const [selectedMethod, setSelectedMethod] = useState<string | 'BALANCE' | null>(null);
@@ -49,10 +49,25 @@ const CartWidget = () => {
 
   return (
     <>
+      {/* Floating Trigger Button (Left Side) */}
+      <button 
+        onClick={openCart}
+        className="fixed bottom-24 md:bottom-6 left-6 z-50 bg-gradient-to-tr from-primary to-secondary p-3.5 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform active:scale-95 group"
+      >
+        <ShoppingCart className="w-6 h-6 text-white" />
+        {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0F1115] animate-bounce">
+                {cart.length}
+            </span>
+        )}
+      </button>
+
+      {/* Backdrop */}
       {isCartOpen && (
         <div className="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm transition-opacity" onClick={reset} />
       )}
 
+      {/* Drawer */}
       <div className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-surface/95 border-l border-white/10 z-[70] transform transition-transform duration-300 ease-out shadow-2xl flex flex-col backdrop-blur-xl ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
          
          {/* Header */}
