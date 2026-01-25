@@ -5,7 +5,7 @@ import { Order, OrderStatus, ProductType, Product, PromoCode, PaymentMethod, Blo
 import { 
   BarChart3, ShoppingBag, Package, Users, Settings, LogOut, 
   Plus, Trash2, Search, Edit3, X, Check, Eye, Wallet, 
-  Database, Infinity, Menu, FileText, MessageSquare, CreditCard, Globe, Shield, Image as ImageIcon, Save, Star, Layout, Link as LinkIcon, Info, Tag, Upload, Monitor, File
+  Database, Infinity, Menu, FileText, MessageSquare, CreditCard, Globe, Shield, Image as ImageIcon, Save, Star, Layout, Link as LinkIcon, Info, Tag, Upload, Monitor, File, Gift
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -99,7 +99,7 @@ const Admin = () => {
     pages, addPage, updatePage, deletePage
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'products' | 'stock' | 'users' | 'content' | 'pages' | 'finance' | 'settings' | 'design'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'products' | 'categories' | 'stock' | 'users' | 'content' | 'pages' | 'finance' | 'settings'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // --- STATE MANAGEMENT ---
@@ -117,6 +117,9 @@ const Admin = () => {
     title: '', categoryId: '', subCategory: '', price: 0, costPrice: 0, discountPercent: 0, type: ProductType.LICENSE_KEY, image: '', description: '', requiresInput: false, durationDays: 0, isLifetime: false, isPopular: false
   });
 
+  // Categories
+  const [catForm, setCatForm] = useState<{name: string, image: string, subCategoriesInput: string}>({ name: '', image: '', subCategoriesInput: '' });
+
   // Stock
   const [stockProduct, setStockProduct] = useState('');
   const [stockInput, setStockInput] = useState('');
@@ -124,25 +127,12 @@ const Admin = () => {
   // Users
   const [userSearch, setUserSearch] = useState('');
 
-  // Content (News/Rules)
-  const [contentSubTab, setContentSubTab] = useState<'news' | 'comments'>('news');
-  const [blogForm, setBlogForm] = useState<{title: string, content: string, image: string}>({ title: '', content: '', image: '' });
-
   // Pages
   const [isEditingPage, setIsEditingPage] = useState(false);
   const [pageForm, setPageForm] = useState<Partial<Page>>({ title: '', slug: '', content: '', category: 'corporate', isActive: true });
 
-  // Finance (Payments/Promo)
-  const [financeSubTab, setFinanceSubTab] = useState<'payments' | 'promos'>('payments');
-  const [payForm, setPayForm] = useState<Partial<PaymentMethod>>({ name: '', details: '', instructions: '', isActive: true, icon: 'credit-card' });
-  const [promoForm, setPromoForm] = useState<{code: string, percent: number}>({ code: '', percent: 0 });
-
-  // Settings (General/Categories)
-  const [settingsSubTab, setSettingsSubTab] = useState<'general' | 'categories'>('general');
+  // Settings
   const [generalForm, setGeneralForm] = useState(siteSettings);
-  const [catForm, setCatForm] = useState<{name: string, image: string}>({ name: '', image: '' });
-
-  // Design (Banner)
   const [slideForm, setSlideForm] = useState<Partial<HeroSlide>>({ image: '', title: '', subtitle: '', desc: '', btnText: 'İndi Al', link: '/' });
 
   if (!user || user.role !== 'admin') {
@@ -172,6 +162,21 @@ const Admin = () => {
               case 'page': deletePage(id); break;
           }
       }
+  };
+
+  // Category Logic
+  const handleSaveCategory = () => {
+      if(!catForm.name) return;
+      const subCats = catForm.subCategoriesInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      addCategory({
+          id: `cat-${Date.now()}`,
+          name: catForm.name,
+          image: catForm.image,
+          subCategories: subCats,
+          isPopular: false
+      });
+      setCatForm({ name: '', image: '', subCategoriesInput: '' });
+      alert("Kateqoriya əlavə edildi.");
   };
 
   // Product Logic
@@ -236,6 +241,7 @@ const Admin = () => {
       if(deliveryModal) {
           completeOrder(deliveryModal.orderId, deliveryContent);
           setDeliveryModal(null);
+          setDeliveryContent('');
       }
   };
 
@@ -245,21 +251,28 @@ const Admin = () => {
       alert("Ayarlar yadda saxlanıldı!");
   };
 
+  const handleSaveSlide = () => {
+      if(!slideForm.image || !slideForm.title) return;
+      addHeroSlide({ ...slideForm, id: `slide-${Date.now()}` } as HeroSlide);
+      setSlideForm({ image: '', title: '', subtitle: '', desc: '', btnText: 'İndi Al', link: '/' });
+  };
+
   // Menu Items
   const menuItems = [
       { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
       { id: 'orders', label: 'Sifarişlər', icon: ShoppingBag, badge: orders.filter(o => o.status === 'PENDING').length },
+      { id: 'categories', label: 'Kateqoriyalar', icon: Layout },
       { id: 'products', label: 'Məhsullar', icon: Package },
       { id: 'stock', label: 'Stok', icon: Database },
-      { id: 'design', label: 'Dizayn & Banner', icon: Layout },
       { id: 'pages', label: 'Səhifələr (CMS)', icon: File },
       { id: 'users', label: 'İstifadəçilər', icon: Users },
-      { id: 'content', label: 'Məzmun & Rəy', icon: FileText },
-      { id: 'finance', label: 'Maliyyə', icon: CreditCard },
-      { id: 'settings', label: 'Ümumi Ayarlar', icon: Settings },
+      { id: 'settings', label: 'Ayarlar & Dizayn', icon: Settings },
   ];
 
   const filteredOrders = orders.filter(o => orderFilter === 'ALL' || o.status === orderFilter);
+
+  // Get Subcategories for product form
+  const selectedCatSubCats = categories.find(c => c.id === productForm.categoryId)?.subCategories || [];
 
   return (
     <div className="min-h-screen bg-background text-white flex flex-col md:flex-row font-sans">
@@ -303,24 +316,222 @@ const Admin = () => {
       {/* MAIN CONTENT */}
       <div className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto bg-background">
           
-          {/* DASHBOARD & ORDERS SECTIONS (Unchanged content not shown for brevity, keeping only needed) */}
-          {/* ... */}
-          {activeTab === 'dashboard' && (
+          {/* ORDERS */}
+          {activeTab === 'orders' && (
               <div className="space-y-6 animate-fade-in">
-                  <h2 className="text-3xl font-bold mb-6">İdarə Paneli</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <div className="glass-card p-6 rounded-2xl">
-                          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Ümumi Gəlir</p>
-                          <p className="text-3xl font-mono font-bold text-white mt-2">
-                              {orders.filter(o => o.status === 'COMPLETED' && !o.items.some(i => i.type === ProductType.BALANCE)).reduce((acc, o) => acc + o.totalPrice, 0).toFixed(2)} ₼
-                          </p>
+                  <h2 className="text-3xl font-bold mb-4">Sifariş İdarəçiliyi</h2>
+                  <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                      {['ALL', 'PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'].map(status => (
+                          <button 
+                              key={status} 
+                              onClick={() => setOrderFilter(status as any)}
+                              className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${orderFilter === status ? 'bg-primary text-white border-primary' : 'bg-transparent border-white/20 text-gray-400 hover:text-white'}`}
+                          >
+                              {status}
+                          </button>
+                      ))}
+                  </div>
+
+                  <div className="space-y-4">
+                      {filteredOrders.length === 0 ? <p className="text-gray-500 text-center py-10">Sifariş tapılmadı.</p> : filteredOrders.map(order => (
+                          <div key={order.id} className="glass-card p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                              <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                      <h3 className="font-bold text-white text-lg">{order.productTitle}</h3>
+                                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                          order.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' : 
+                                          order.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                                      }`}>{order.status}</span>
+                                  </div>
+                                  <div className="text-sm text-gray-400 space-y-1">
+                                      <p>İstifadəçi: <span className="text-white">{usersList.find(u => u.id === order.userId)?.email}</span></p>
+                                      <p>Məbləğ: <span className="text-gaming-neon font-bold">{order.totalPrice.toFixed(2)} ₼</span></p>
+                                      <p>Tarix: {new Date(order.date).toLocaleString()}</p>
+                                      {order.paymentMethodName !== 'Wallet Balance' && (
+                                          <p className="flex items-center gap-2">
+                                              Ödəniş: {order.paymentMethodName} 
+                                              {order.receiptImage && (
+                                                  <a href={order.receiptImage} target="_blank" className="text-primary hover:underline flex items-center gap-1 text-xs">
+                                                      <Eye className="w-3 h-3"/> Qəbzi Gör
+                                                  </a>
+                                              )}
+                                          </p>
+                                      )}
+                                      {order.items.some(i => i.userInput) && (
+                                          <p className="bg-white/5 p-2 rounded mt-2 border border-white/10">Input: {order.items[0].userInput}</p>
+                                      )}
+                                  </div>
+                              </div>
+                              <div className="flex flex-col gap-2 min-w-[150px]">
+                                  {order.status === 'PENDING' && (
+                                      <>
+                                          <button 
+                                              onClick={() => setDeliveryModal({orderId: order.id, productTitle: order.productTitle || 'Order'})}
+                                              className="bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold transition-colors"
+                                          >
+                                              Təsdiq & Təhvil
+                                          </button>
+                                          <button 
+                                              onClick={() => cancelOrder(order.id)}
+                                              className="bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold transition-colors"
+                                          >
+                                              Ləğv Et
+                                          </button>
+                                      </>
+                                  )}
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+
+                  {/* Delivery Modal */}
+                  {deliveryModal && (
+                      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+                          <div className="bg-[#1a1d24] rounded-2xl p-6 w-full max-w-md border border-white/10">
+                              <h3 className="text-xl font-bold text-white mb-4">Sifarişi Təhvil Ver: {deliveryModal.productTitle}</h3>
+                              <textarea 
+                                  className="w-full bg-black/50 border border-white/20 rounded-xl p-4 text-white h-32 mb-4"
+                                  placeholder="Məhsul kodunu və ya hesab məlumatlarını bura yazın..."
+                                  value={deliveryContent}
+                                  onChange={e => setDeliveryContent(e.target.value)}
+                              ></textarea>
+                              <div className="flex justify-end gap-3">
+                                  <button onClick={() => setDeliveryModal(null)} className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20">Ləğv</button>
+                                  <button onClick={confirmDelivery} className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark">Təsdiq & Bitir</button>
+                              </div>
+                          </div>
                       </div>
-                      {/* ... other stats */}
+                  )}
+              </div>
+          )}
+
+          {/* CATEGORIES */}
+          {activeTab === 'categories' && (
+              <div className="space-y-6 animate-fade-in">
+                  <div className="glass-card p-6 rounded-2xl border border-white/10 mb-8">
+                      <h3 className="font-bold mb-4 text-lg">Yeni Kateqoriya</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input className="bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white" placeholder="Kateqoriya Adı (Məs: PUBG Mobile)" value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} />
+                          <ImageInput label="Şəkil" value={catForm.image} onChange={val => setCatForm({...catForm, image: val})} />
+                          <div className="md:col-span-2">
+                              <label className="text-xs text-gray-400 uppercase font-bold mb-1 block">Alt Kateqoriyalar (Vergüllə ayırın)</label>
+                              <input className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white" placeholder="Məs: UC, Account, Redeem Code" value={catForm.subCategoriesInput} onChange={e => setCatForm({...catForm, subCategoriesInput: e.target.value})} />
+                          </div>
+                          <button onClick={handleSaveCategory} className="md:col-span-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors">Əlavə Et</button>
+                      </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {categories.map(cat => (
+                          <div key={cat.id} className="bg-surfaceHighlight border border-white/10 rounded-xl p-4 flex gap-4 items-center group">
+                              <img src={cat.image} className="w-16 h-16 rounded-lg object-cover" />
+                              <div className="flex-1">
+                                  <h4 className="font-bold text-white">{cat.name}</h4>
+                                  <p className="text-xs text-gray-500 line-clamp-1">{cat.subCategories?.join(', ')}</p>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                   <button onClick={() => togglePopularCategory(cat.id)} className={`p-1.5 rounded ${cat.isPopular ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-500 bg-white/5'}`}><Star className="w-4 h-4" /></button>
+                                   <button onClick={() => handleDelete('category', cat.id)} className="p-1.5 rounded text-red-400 bg-red-400/10 hover:bg-red-500 hover:text-white"><Trash2 className="w-4 h-4" /></button>
+                              </div>
+                          </div>
+                      ))}
                   </div>
               </div>
           )}
 
-          {/* ... other tabs ... */}
+          {/* PRODUCTS */}
+          {activeTab === 'products' && (
+              <div className="space-y-6 animate-fade-in">
+                  <div className="flex justify-between items-center">
+                      <h2 className="text-3xl font-bold">Məhsullar</h2>
+                      <div className="flex gap-2">
+                           <button onClick={() => setProductView('list')} className={`px-4 py-2 rounded-xl font-bold ${productView === 'list' ? 'bg-white text-black' : 'bg-white/10 text-white'}`}>Siyahı</button>
+                           <button onClick={() => { setIsEditingProd(false); setProductView('add'); setProductForm({ title: '', categoryId: '', subCategory: '', price: 0, costPrice: 0, discountPercent: 0, type: ProductType.LICENSE_KEY, image: '', description: '', requiresInput: false, durationDays: 0, isLifetime: false, isPopular: false }); }} className={`px-4 py-2 rounded-xl font-bold ${productView === 'add' ? 'bg-primary text-white' : 'bg-white/10 text-white'}`}>Yeni Məhsul</button>
+                      </div>
+                  </div>
+
+                  {productView === 'add' ? (
+                      <div className="glass-card p-6 rounded-2xl border border-white/10 max-w-3xl mx-auto">
+                          <h3 className="font-bold text-xl mb-6 border-b border-white/10 pb-4">{isEditingProd ? 'Redaktə Et' : 'Yeni Məhsul Əlavə Et'}</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="md:col-span-2">
+                                  <label className="label">Məhsul Adı</label>
+                                  <input className="input" value={productForm.title} onChange={e => setProductForm({...productForm, title: e.target.value})} />
+                              </div>
+                              <div>
+                                  <label className="label">Kateqoriya</label>
+                                  <select className="input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value, subCategory: ''})}>
+                                      <option value="">Seçin</option>
+                                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                  </select>
+                              </div>
+                              <div>
+                                  <label className="label">Alt Kateqoriya</label>
+                                  <select className="input" value={productForm.subCategory} onChange={e => setProductForm({...productForm, subCategory: e.target.value})} disabled={!selectedCatSubCats.length}>
+                                      <option value="">Seçin</option>
+                                      {selectedCatSubCats.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                                  </select>
+                              </div>
+                              <div>
+                                  <label className="label">Satış Qiyməti (AZN)</label>
+                                  <input type="number" className="input" value={productForm.price} onChange={e => setProductForm({...productForm, price: parseFloat(e.target.value)})} />
+                              </div>
+                              <div>
+                                  <label className="label">Maya Dəyəri (AZN)</label>
+                                  <input type="number" className="input" value={productForm.costPrice} onChange={e => setProductForm({...productForm, costPrice: parseFloat(e.target.value)})} />
+                              </div>
+                              <div>
+                                  <label className="label">Endirim (%)</label>
+                                  <input type="number" className="input" value={productForm.discountPercent} onChange={e => setProductForm({...productForm, discountPercent: parseFloat(e.target.value)})} />
+                              </div>
+                              <div>
+                                  <label className="label">Növ</label>
+                                  <select className="input" value={productForm.type} onChange={e => setProductForm({...productForm, type: e.target.value as any})}>
+                                      <option value={ProductType.LICENSE_KEY}>License Key</option>
+                                      <option value={ProductType.ID_LOAD}>ID Yükləmə</option>
+                                      <option value={ProductType.ACCOUNT}>Account</option>
+                                  </select>
+                              </div>
+                              <div className="md:col-span-2">
+                                  <ImageInput label="Şəkil" value={productForm.image || ''} onChange={val => setProductForm({...productForm, image: val})} />
+                              </div>
+                              <div className="md:col-span-2">
+                                  <label className="label">Təsvir</label>
+                                  <textarea className="input h-24" value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})}></textarea>
+                              </div>
+                              
+                              <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+                                  <input type="checkbox" className="w-5 h-5 accent-primary" checked={productForm.requiresInput} onChange={e => setProductForm({...productForm, requiresInput: e.target.checked})} />
+                                  <label className="text-sm font-bold text-gray-300">İstifadəçi girişi tələb olunur (Məs: ID)</label>
+                              </div>
+                              <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+                                  <input type="checkbox" className="w-5 h-5 accent-primary" checked={productForm.isPopular} onChange={e => setProductForm({...productForm, isPopular: e.target.checked})} />
+                                  <label className="text-sm font-bold text-gray-300">Populyar Məhsul</label>
+                              </div>
+
+                              <button onClick={handleSaveProduct} className="md:col-span-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors">Yadda Saxla</button>
+                          </div>
+                      </div>
+                  ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {products.map(p => (
+                              <div key={p.id} className="bg-surfaceHighlight border border-white/10 rounded-xl p-4 flex gap-4 group">
+                                  <img src={p.image} className="w-20 h-20 rounded-lg object-cover bg-black/50" />
+                                  <div className="flex-1">
+                                      <h4 className="font-bold text-white line-clamp-1">{p.title}</h4>
+                                      <p className="text-xs text-gray-400">{categories.find(c=>c.id===p.categoryId)?.name}</p>
+                                      <p className="text-primary font-bold mt-1">{p.price.toFixed(2)} ₼</p>
+                                  </div>
+                                  <div className="flex flex-col gap-2">
+                                      <button onClick={() => handleEditProduct(p)} className="p-2 bg-white/10 hover:bg-white hover:text-black rounded"><Edit3 className="w-4 h-4"/></button>
+                                      <button onClick={() => handleDelete('product', p.id)} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded"><Trash2 className="w-4 h-4"/></button>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+          )}
 
           {/* PAGES (CMS) */}
           {activeTab === 'pages' && (
@@ -339,15 +550,15 @@ const Admin = () => {
                           <div className="space-y-4">
                               <div>
                                   <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Başlıq</label>
-                                  <input className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white" value={pageForm.title} onChange={e => setPageForm({...pageForm, title: e.target.value})} />
+                                  <input className="input" value={pageForm.title} onChange={e => setPageForm({...pageForm, title: e.target.value})} />
                               </div>
                               <div>
                                   <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Slug (URL)</label>
-                                  <input className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white text-sm font-mono" placeholder="Auto-generated" value={pageForm.slug} onChange={e => setPageForm({...pageForm, slug: e.target.value})} />
+                                  <input className="input text-sm font-mono" placeholder="Auto-generated" value={pageForm.slug} onChange={e => setPageForm({...pageForm, slug: e.target.value})} />
                               </div>
                               <div>
                                   <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Kateqoriya</label>
-                                  <select className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white" value={pageForm.category} onChange={e => setPageForm({...pageForm, category: e.target.value as any})}>
+                                  <select className="input" value={pageForm.category} onChange={e => setPageForm({...pageForm, category: e.target.value as any})}>
                                       <option value="corporate">Haqqımızda / Korporativ</option>
                                       <option value="agreement">Sözləşmə / Qayda</option>
                                       <option value="help">Kömək / Üzvlük</option>
@@ -355,7 +566,7 @@ const Admin = () => {
                               </div>
                               <div>
                                   <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Məzmun (HTML/Text)</label>
-                                  <textarea className="w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white h-64 font-mono text-sm" value={pageForm.content} onChange={e => setPageForm({...pageForm, content: e.target.value})}></textarea>
+                                  <textarea className="input h-64 font-mono text-sm" value={pageForm.content} onChange={e => setPageForm({...pageForm, content: e.target.value})}></textarea>
                               </div>
                               <button onClick={handleSavePage} className="w-full bg-primary hover:bg-primary-dark font-bold py-3 rounded-xl text-white transition-colors">Yadda Saxla</button>
                           </div>
@@ -383,7 +594,97 @@ const Admin = () => {
               </div>
           )}
 
+          {/* STOCK */}
+          {activeTab === 'stock' && (
+              <div className="space-y-6 animate-fade-in">
+                  <h2 className="text-3xl font-bold mb-4">Stok İdarəçiliyi</h2>
+                  <div className="glass-card p-6 rounded-2xl border border-white/10 mb-8">
+                       <h3 className="font-bold mb-4">Kod Yüklə</h3>
+                       <div className="space-y-4">
+                           <select className="input" value={stockProduct} onChange={e => setStockProduct(e.target.value)}>
+                               <option value="">Məhsul Seçin</option>
+                               {products.filter(p => p.type !== ProductType.BALANCE).map(p => (
+                                   <option key={p.id} value={p.id}>{p.title}</option>
+                               ))}
+                           </select>
+                           <textarea className="input h-32 font-mono" placeholder="Hər sətrə bir kod..." value={stockInput} onChange={e => setStockInput(e.target.value)}></textarea>
+                           <button onClick={handleAddStock} className="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl">Yüklə</button>
+                       </div>
+                  </div>
+                  
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="font-bold mb-4">Mövcud Stoklar</h3>
+                      <div className="overflow-x-auto">
+                          <table className="w-full text-left text-sm text-gray-400">
+                              <thead className="text-xs uppercase bg-white/5 text-gray-300">
+                                  <tr>
+                                      <th className="p-3">Məhsul</th>
+                                      <th className="p-3">Kod</th>
+                                      <th className="p-3">Status</th>
+                                      <th className="p-3">Əməliyyat</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {stocks.map(stock => (
+                                      <tr key={stock.id} className="border-b border-white/5 hover:bg-white/5">
+                                          <td className="p-3 text-white font-bold">{products.find(p=>p.id===stock.productId)?.title}</td>
+                                          <td className="p-3 font-mono">{stock.code}</td>
+                                          <td className="p-3">{stock.isUsed ? <span className="text-red-500">İstifadə edilib</span> : <span className="text-green-500">Aktiv</span>}</td>
+                                          <td className="p-3">
+                                              <button onClick={() => handleDelete('stock', stock.id)} className="text-red-400 hover:text-white"><Trash2 className="w-4 h-4"/></button>
+                                          </td>
+                                      </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          )}
+
+          {/* SETTINGS */}
+          {activeTab === 'settings' && (
+              <div className="space-y-8 animate-fade-in">
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-2">Ümumi Ayarlar</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           <div><label className="label">Sayt Adı</label><input className="input" value={generalForm.siteName} onChange={e => setGeneralForm({...generalForm, siteName: e.target.value})} /></div>
+                           <div><label className="label">Whatsapp Nömrəsi</label><input className="input" value={generalForm.whatsappNumber} onChange={e => setGeneralForm({...generalForm, whatsappNumber: e.target.value})} /></div>
+                           <div><label className="label">Footer Mətni</label><input className="input" value={generalForm.footerText} onChange={e => setGeneralForm({...generalForm, footerText: e.target.value})} /></div>
+                           <button onClick={saveGeneralSettings} className="bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl">Yadda Saxla</button>
+                      </div>
+                  </div>
+
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-2">Hero Slider (Ana Səhifə)</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                           <ImageInput label="Banner Şəkli" value={slideForm.image || ''} onChange={val => setSlideForm({...slideForm, image: val})} />
+                           <div className="space-y-4">
+                               <input className="input" placeholder="Başlıq (Title)" value={slideForm.title} onChange={e => setSlideForm({...slideForm, title: e.target.value})} />
+                               <input className="input" placeholder="Alt Başlıq (Subtitle)" value={slideForm.subtitle} onChange={e => setSlideForm({...slideForm, subtitle: e.target.value})} />
+                               <input className="input" placeholder="Təsvir" value={slideForm.desc} onChange={e => setSlideForm({...slideForm, desc: e.target.value})} />
+                               <button onClick={handleSaveSlide} className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-xl w-full">Slayd Əlavə Et</button>
+                           </div>
+                      </div>
+                      <div className="space-y-2">
+                           {heroSlides.map(slide => (
+                               <div key={slide.id} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/10">
+                                   <img src={slide.image} className="w-16 h-10 object-cover rounded" />
+                                   <div className="flex-1"><h4 className="font-bold text-white text-sm">{slide.title}</h4></div>
+                                   <button onClick={() => handleDelete('slide', slide.id)} className="text-red-400 hover:text-white"><Trash2 className="w-4 h-4"/></button>
+                               </div>
+                           ))}
+                      </div>
+                  </div>
+              </div>
+          )}
+
       </div>
+
+      <style>{`
+        .input { @apply w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all; }
+        .label { @apply text-xs text-gray-400 uppercase font-bold mb-1 block; }
+      `}</style>
     </div>
   );
 };

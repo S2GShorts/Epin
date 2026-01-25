@@ -56,7 +56,8 @@ export interface Category {
   name: string;
   image?: string;
   icon?: string;
-  isPopular?: boolean; // New field for Game World section
+  isPopular?: boolean;
+  subCategories?: string[]; // New: List of subcategories (e.g. ["UC", "Account"])
   seoTitle?: string;
   seoKeywords?: string;
 }
@@ -65,7 +66,7 @@ export interface Product {
   id: string;
   title: string;
   categoryId: string;
-  subCategory?: string; // New: Alt Kateqoriya (Netflix -> UHD, HD)
+  subCategory?: string; 
   type: ProductType;
   price: number;        
   costPrice: number;    
@@ -79,7 +80,7 @@ export interface Product {
   durationDays?: number;
   isLifetime?: boolean; 
   stockCount?: number;
-  isPopular?: boolean; // New field for Popular Products section
+  isPopular?: boolean;
 }
 
 export interface CartItem {
@@ -102,13 +103,12 @@ export interface Blog {
   image: string;
 }
 
-// Yeni CMS Page Tipi
 export interface Page {
   id: string;
   title: string;
   slug: string;
   content: string;
-  category: 'corporate' | 'agreement' | 'help'; // Haqqımızda, Sözləşmə, Üzvlük/Kömək
+  category: 'corporate' | 'agreement' | 'help'; 
   isActive: boolean;
   seoTitle?: string;
   seoDesc?: string;
@@ -196,7 +196,7 @@ export interface SocialLinks {
 export interface SiteSettings {
   siteName: string;
   logoUrl: string;
-  heroBannerUrl: string; // Deprecated in favor of HeroSlide, keeping for compatibility
+  heroBannerUrl: string; 
   heroTitle: string;
   heroSubtitle: string;
   whatsappNumber: string;

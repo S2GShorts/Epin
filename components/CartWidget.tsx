@@ -1,19 +1,56 @@
 
-import React from 'react';
-import { ShoppingCart, X, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart, X, Trash2, Plus, Minus, ArrowRight, CreditCard, Wallet, Upload } from 'lucide-react';
 import { useApp } from '../store';
 import { useNavigate } from 'react-router-dom';
 
 const CartWidget = () => {
-  const { cart, updateCartQuantity, removeFromCart, isCartOpen, closeCart } = useApp();
+  const { cart, updateCartQuantity, removeFromCart, isCartOpen, closeCart, placeOrder, paymentMethods, user, isAuthenticated } = useApp();
   const navigate = useNavigate();
+  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'payment'>('cart');
+  const [selectedMethod, setSelectedMethod] = useState<string | 'BALANCE' | null>(null);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleCheckout = async () => {
+     if(!isAuthenticated) {
+         closeCart();
+         navigate('/auth');
+         return;
+     }
+     
+     if(!selectedMethod) return;
+     if (selectedMethod !== 'BALANCE' && !receiptFile) {
+         alert("Zəhmət olmasa qəbz yükləyin.");
+         return;
+     }
+
+     setIsSubmitting(true);
+     const success = await placeOrder(selectedMethod, receiptFile || undefined);
+     setIsSubmitting(false);
+     
+     if (success) {
+        setCheckoutStep('cart');
+        setSelectedMethod(null);
+        setReceiptFile(null);
+        closeCart();
+        navigate('/profile'); 
+     }
+  };
+
+  const reset = () => {
+      setCheckoutStep('cart');
+      setSelectedMethod(null);
+      setReceiptFile(null);
+      closeCart();
+  }
 
   return (
     <>
       {isCartOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm transition-opacity" onClick={closeCart} />
+        <div className="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm transition-opacity" onClick={reset} />
       )}
 
       <div className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-surface/95 border-l border-white/10 z-[70] transform transition-transform duration-300 ease-out shadow-2xl flex flex-col backdrop-blur-xl ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
@@ -21,10 +58,10 @@ const CartWidget = () => {
          {/* Header */}
          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
             <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                Səbətiniz
-                <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full">{cart.length}</span>
+                {checkoutStep === 'cart' ? 'Səbətiniz' : 'Ödəniş'}
+                {checkoutStep === 'cart' && <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full">{cart.length}</span>}
             </h2>
-            <button onClick={closeCart} className="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-full"><X /></button>
+            <button onClick={reset} className="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-full"><X /></button>
          </div>
 
          {/* Items */}
@@ -35,9 +72,9 @@ const CartWidget = () => {
                         <ShoppingCart className="w-10 h-10 opacity-30" />
                     </div>
                     <p className="font-medium text-lg">Səbətiniz boşdur</p>
-                    <button onClick={closeCart} className="text-primary hover:text-white transition-colors">Alış-verişə davam et</button>
+                    <button onClick={reset} className="text-primary hover:text-white transition-colors">Alış-verişə davam et</button>
                 </div>
-            ) : (
+            ) : checkoutStep === 'cart' ? (
                 cart.map((item, index) => (
                     <div key={index} className="flex gap-4 p-4 rounded-2xl bg-surfaceHighlight/50 border border-white/5 hover:border-primary/30 transition-colors group">
                         <div className="w-20 h-20 rounded-xl overflow-hidden bg-black/50 shrink-0">
@@ -64,6 +101,59 @@ const CartWidget = () => {
                         </div>
                     </div>
                 ))
+            ) : (
+                <div className="space-y-6 animate-fade-in">
+                    <div>
+                        <h3 className="text-gray-400 uppercase text-xs font-bold mb-3">Ödəniş Metodu</h3>
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => setSelectedMethod('BALANCE')}
+                                className={`w-full p-3 rounded-xl border flex items-center justify-between gap-2 transition-all text-sm text-left
+                                    ${selectedMethod === 'BALANCE' 
+                                    ? 'border-gaming-neon bg-gaming-neon/10' 
+                                    : 'border-white/10 bg-slate-900 hover:bg-white/5'}`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-black/40 p-2 rounded-lg"><Wallet className="w-4 h-4 text-purple-400" /></div>
+                                    <span className="text-white font-bold">Balansdan Ödə</span>
+                                </div>
+                                <span className="text-gray-400 text-xs">{user?.balance.toFixed(2)} ₼</span>
+                            </button>
+                            
+                            {paymentMethods.filter(pm => pm.isActive).map(pm => (
+                                <button
+                                    key={pm.id}
+                                    onClick={() => setSelectedMethod(pm.id)}
+                                    className={`w-full p-3 rounded-xl border flex items-center gap-3 transition-all text-sm text-left
+                                        ${selectedMethod === pm.id 
+                                        ? 'border-gaming-neon bg-gaming-neon/10' 
+                                        : 'border-white/10 bg-slate-900 hover:bg-white/5'}`}
+                                >
+                                    <div className="bg-black/40 p-2 rounded-lg"><CreditCard className="w-4 h-4 text-gray-400" /></div>
+                                    <span className="text-white font-bold">{pm.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {selectedMethod && selectedMethod !== 'BALANCE' && (
+                        <div className="animate-fade-in">
+                            <div className="bg-slate-900 p-4 rounded-xl text-sm border-l-4 border-primary mb-4">
+                                <p className="text-gray-400 text-xs uppercase font-bold mb-1">Hesab:</p>
+                                <p className="font-mono text-white mb-2">{paymentMethods.find(p=>p.id===selectedMethod)?.details}</p>
+                                <p className="text-xs text-gray-500">{paymentMethods.find(p=>p.id===selectedMethod)?.instructions}</p>
+                            </div>
+
+                            <div className="relative border-2 border-dashed border-white/20 rounded-xl p-6 hover:bg-white/5 transition-colors text-center cursor-pointer">
+                                <input type="file" accept="image/*" onChange={(e) => e.target.files && setReceiptFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                                <p className="text-xs text-gray-300 font-bold">
+                                    {receiptFile ? <span className="text-green-400">{receiptFile.name}</span> : "Qəbz yüklə"}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
          </div>
 
@@ -73,13 +163,27 @@ const CartWidget = () => {
                 <span className="text-gray-400">Cəmi Məbləğ</span>
                 <span className="text-2xl font-bold text-white">{subTotal.toFixed(2)} <span className="text-primary">₼</span></span>
             </div>
-            <button 
-                onClick={() => { closeCart(); navigate('/cart'); }}
-                className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                disabled={cart.length === 0}
-            >
-                Sifarişi Rəsmiləşdir <ArrowRight className="w-5 h-5" />
-            </button>
+            
+            {checkoutStep === 'cart' ? (
+                <button 
+                    onClick={() => setCheckoutStep('payment')}
+                    className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                    disabled={cart.length === 0}
+                >
+                    Sifarişi Rəsmiləşdir <ArrowRight className="w-5 h-5" />
+                </button>
+            ) : (
+                <div className="flex gap-2">
+                    <button onClick={() => setCheckoutStep('cart')} className="px-4 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold">Geri</button>
+                    <button 
+                        onClick={handleCheckout}
+                        disabled={!selectedMethod || (selectedMethod !== 'BALANCE' && !receiptFile) || isSubmitting}
+                        className="flex-1 bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        {isSubmitting ? '...' : 'Təsdiqlə'} <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+            )}
          </div>
       </div>
     </>

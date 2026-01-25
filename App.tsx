@@ -23,21 +23,22 @@ import FloatingBalance from './components/FloatingBalance';
 import { AppProvider } from './store';
 import ChatWidget from './components/ChatWidget';
 import CartWidget from './components/CartWidget';
+import Giveaways from './pages/Giveaways';
+import MysteryBoxes from './pages/MysteryBoxes';
 
 const Layout = ({ children }: { children?: React.ReactNode }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === '/auth';
 
-  // FIX: 
-  // Desktop Header: pt-24 (Standard)
-  // Mobile Header: pt-20 (Reduced from 110px to remove meaningless whitespace)
+  // Desktop Header: pt-24
+  // Mobile: pt-20
   
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdminPage && !isAuthPage && <Navbar />}
       
-      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-20 md:pt-24 pb-[90px] md:pb-0' : ''}`}>
+      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-24 md:pt-28 pb-[90px] md:pb-0' : ''}`}>
         {children}
       </main>
       
@@ -45,7 +46,7 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
       {!isAdminPage && !isAuthPage && <BottomNav />}
       {!isAdminPage && !isAuthPage && <ChatWidget />}
       
-      {/* CartWidget is always mounted to handle drawer state, handles its own visibility */}
+      {/* CartWidget is always mounted to handle drawer state */}
       {!isAdminPage && !isAuthPage && <CartWidget />}
     </div>
   );
@@ -71,6 +72,8 @@ const App = () => {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/product/:id" element={<ProductView />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/giveaways" element={<Giveaways />} />
+            <Route path="/mystery-boxes" element={<MysteryBoxes />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </Layout>

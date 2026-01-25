@@ -2,7 +2,7 @@
 import React from 'react';
 import { useApp } from '../store';
 import { Link, useNavigate } from 'react-router-dom';
-import { Instagram, Send, MessageCircle, Phone, ChevronRight, Smartphone } from 'lucide-react';
+import { Instagram, Send, MessageCircle, Phone, ChevronRight, Smartphone, Zap, ShieldCheck, Headphones, CreditCard } from 'lucide-react';
 
 const Footer = () => {
   const { siteSettings, categories, pages, user } = useApp();
@@ -16,8 +16,53 @@ const Footer = () => {
   const agreementPages = pages.filter(p => p.category === 'agreement' && p.isActive);
 
   return (
-    <footer className="bg-[#0b0d12] border-t border-white/5 pt-20 pb-28 md:pb-10 font-sans mt-auto">
-      <div className="max-w-7xl mx-auto px-4">
+    <footer className="bg-[#0b0d12] border-t border-white/5 pt-0 pb-28 md:pb-10 font-sans mt-auto">
+      
+      {/* INFO BAR - S2GEPIN Style */}
+      <div className="border-b border-white/5 bg-white/[0.02]">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                          <Zap className="w-6 h-6" />
+                      </div>
+                      <div>
+                          <h4 className="font-bold text-white text-sm">Sürətli Təslimat</h4>
+                          <p className="text-gray-500 text-xs">Anında yükləmə</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
+                          <CreditCard className="w-6 h-6" />
+                      </div>
+                      <div>
+                          <h4 className="font-bold text-white text-sm">Sərfəli Qiymət</h4>
+                          <p className="text-gray-500 text-xs">Ən ucuz təkliflər</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300">
+                          <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                          <h4 className="font-bold text-white text-sm">Etibarlı Xidmət</h4>
+                          <p className="text-gray-500 text-xs">100% Güvənli</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                          <Headphones className="w-6 h-6" />
+                      </div>
+                      <div>
+                          <h4 className="font-bold text-white text-sm">Canlı Dəstək</h4>
+                          <p className="text-gray-500 text-xs">7/24 Xidmətinizdə</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 pt-16">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../store';
 import ProductCard from '../components/ProductCard';
-import { ArrowLeft, Search, Filter, SlidersHorizontal, ArrowDownUp, Tag } from 'lucide-react';
+import { ArrowLeft, Search, Filter, SlidersHorizontal, ArrowDownUp, Tag, Layers } from 'lucide-react';
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,8 +16,8 @@ const CategoryPage = () => {
   const category = categories.find(c => c.id === id);
   const categoryProducts = products.filter(p => p.categoryId === id);
 
-  // Extract unique sub-categories
-  const subCategories = Array.from(new Set(categoryProducts.map(p => p.subCategory).filter(Boolean))) as string[];
+  // Extract unique sub-categories from category definition OR products
+  const subCategories = category?.subCategories || Array.from(new Set(categoryProducts.map(p => p.subCategory).filter(Boolean))) as string[];
 
   // Filter & Sort Logic
   const filteredProducts = categoryProducts
@@ -68,18 +68,18 @@ const CategoryPage = () => {
                 </div>
             </div>
 
-            {/* Sub-Category Tabs (If any) */}
+            {/* Sub-Category Tabs */}
             {subCategories.length > 0 && (
                 <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
                     <button 
                         onClick={() => setSelectedSubCat('ALL')}
-                        className={`px-6 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all border ${
+                        className={`px-6 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all border flex items-center gap-2 ${
                             selectedSubCat === 'ALL' 
-                            ? 'bg-gaming-neon text-black border-gaming-neon' 
-                            : 'bg-slate-900 text-gray-400 border-gray-700 hover:text-white'
+                            ? 'bg-gaming-neon text-black border-gaming-neon shadow-[0_0_10px_rgba(139,92,246,0.4)]' 
+                            : 'bg-slate-900 text-gray-400 border-gray-700 hover:text-white hover:bg-slate-800'
                         }`}
                     >
-                        Hamısı
+                        <Layers className="w-4 h-4" /> Hamısı
                     </button>
                     {subCategories.map(sub => (
                         <button 
@@ -87,8 +87,8 @@ const CategoryPage = () => {
                             onClick={() => setSelectedSubCat(sub)}
                             className={`px-6 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all border flex items-center gap-2 ${
                                 selectedSubCat === sub 
-                                ? 'bg-gaming-neon text-black border-gaming-neon' 
-                                : 'bg-slate-900 text-gray-400 border-gray-700 hover:text-white'
+                                ? 'bg-gaming-neon text-black border-gaming-neon shadow-[0_0_10px_rgba(139,92,246,0.4)]' 
+                                : 'bg-slate-900 text-gray-400 border-gray-700 hover:text-white hover:bg-slate-800'
                             }`}
                         >
                             <Tag className="w-3 h-3" /> {sub}

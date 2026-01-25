@@ -33,10 +33,10 @@ const BottomNav = () => {
                 <span className={`text-[10px] transition-colors ${isActive('/') ? 'text-white font-bold' : 'text-gray-500'}`}>Ana Səhifə</span>
             </button>
 
-            {/* 2. Categories */}
+            {/* 2. Categories - UPDATED LABEL */}
             <button onClick={() => navigate('/categories')} className="flex flex-col items-center justify-center gap-1 group">
                 <LayoutGrid className={`w-6 h-6 transition-all duration-300 group-active:scale-90 ${isActive('/categories') ? 'text-primary fill-primary/20' : 'text-gray-500'}`} strokeWidth={isActive('/categories') ? 2.5 : 2} />
-                <span className={`text-[10px] transition-colors ${isActive('/categories') ? 'text-white font-bold' : 'text-gray-500'}`}>Kataloq</span>
+                <span className={`text-[10px] transition-colors ${isActive('/categories') ? 'text-white font-bold' : 'text-gray-500'}`}>Kateqoriyalar</span>
             </button>
 
             {/* 3. CART (Enhanced Floating Effect) */}

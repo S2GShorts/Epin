@@ -76,14 +76,28 @@ export const INITIAL_SETTINGS: SiteSettings = {
 };
 
 export const INITIAL_CATEGORIES: Category[] = [
-  { id: 'cat_pubg', name: 'PUBG Mobile', icon: 'crosshair', image: 'https://wallpapers.com/images/hd/pubg-mobile-poster-j688p340057041a7.jpg', isPopular: true },
-  { id: 'cat_valorant', name: 'Valorant', icon: 'shield', image: 'https://images.hdqwalls.com/wallpapers/valorant-4k-gaming-new-2020-ix.jpg', isPopular: true },
-  { id: 'cat_mlbb', name: 'Mobile Legends', icon: 'sword', image: 'https://images6.alphacoders.com/110/1107530.jpg', isPopular: true },
-  { id: 'cat_steam', name: 'Steam Wallet', icon: 'wallet', image: 'https://steamcdn-a.akamaihd.net/steam/clusters/frontpage/88d697841551062080352528/page_bg_english.jpg' },
-  { id: 'cat_lol', name: 'League of Legends', icon: 'gamepad', image: 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg' },
-  { id: 'cat_freefire', name: 'Free Fire', icon: 'flame', image: 'https://images.hdqwalls.com/wallpapers/garena-free-fire-4k-oa.jpg' },
-  { id: 'cat_wolfteam', name: 'Wolfteam', icon: 'skull', image: 'https://i.ytimg.com/vi/S7QzK1yW4SE/maxresdefault.jpg', isPopular: true },
-  { id: 'cat_apple', name: 'Apple iTunes', icon: 'smartphone', image: 'https://images.unsplash.com/photo-1621768216002-5ac171876625?q=80&w=2074&auto=format&fit=crop' }
+  { 
+    id: 'cat_pubg', 
+    name: 'PUBG Mobile', 
+    icon: 'crosshair', 
+    image: 'https://wallpapers.com/images/hd/pubg-mobile-poster-j688p340057041a7.jpg', 
+    isPopular: true,
+    subCategories: ['UC (Global)', 'Account', 'Redeem Code'] 
+  },
+  { 
+    id: 'cat_valorant', 
+    name: 'Valorant', 
+    icon: 'shield', 
+    image: 'https://images.hdqwalls.com/wallpapers/valorant-4k-gaming-new-2020-ix.jpg', 
+    isPopular: true,
+    subCategories: ['VP (TR)', 'VP (EU)', 'Random Account'] 
+  },
+  { id: 'cat_mlbb', name: 'Mobile Legends', icon: 'sword', image: 'https://images6.alphacoders.com/110/1107530.jpg', isPopular: true, subCategories: ['Diamonds', 'Starlight'] },
+  { id: 'cat_steam', name: 'Steam Wallet', icon: 'wallet', image: 'https://steamcdn-a.akamaihd.net/steam/clusters/frontpage/88d697841551062080352528/page_bg_english.jpg', subCategories: ['USD Code', 'TL Code', 'Random Key'] },
+  { id: 'cat_lol', name: 'League of Legends', icon: 'gamepad', image: 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg', subCategories: ['RP (TR)', 'RP (EU)'] },
+  { id: 'cat_freefire', name: 'Free Fire', icon: 'flame', image: 'https://images.hdqwalls.com/wallpapers/garena-free-fire-4k-oa.jpg', subCategories: ['Diamonds'] },
+  { id: 'cat_wolfteam', name: 'Wolfteam', icon: 'skull', image: 'https://i.ytimg.com/vi/S7QzK1yW4SE/maxresdefault.jpg', isPopular: true, subCategories: ['Nakit'] },
+  { id: 'cat_apple', name: 'Apple iTunes', icon: 'smartphone', image: 'https://images.unsplash.com/photo-1621768216002-5ac171876625?q=80&w=2074&auto=format&fit=crop', subCategories: ['USD Card', 'TR Card'] }
 ];
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -92,6 +106,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'pubg_60',
     title: '60 UC',
     categoryId: 'cat_pubg',
+    subCategory: 'UC (Global)',
     type: ProductType.ID_LOAD,
     price: 1.70,
     costPrice: 1.50,
@@ -108,6 +123,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'pubg_325',
     title: '325 + 25 UC',
     categoryId: 'cat_pubg',
+    subCategory: 'UC (Global)',
     type: ProductType.ID_LOAD,
     price: 9.20,
     costPrice: 8.50,
@@ -124,6 +140,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'pubg_660',
     title: '660 + 60 UC',
     categoryId: 'cat_pubg',
+    subCategory: 'UC (Global)',
     type: ProductType.ID_LOAD,
     price: 18.50,
     costPrice: 16.00,
@@ -140,6 +157,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'pubg_1800',
     title: '1800 UC',
     categoryId: 'cat_pubg',
+    subCategory: 'UC (Global)',
     type: ProductType.ID_LOAD,
     price: 45.00,
     costPrice: 40.00,
@@ -157,6 +175,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'val_115',
     title: '115 VP (TR)',
     categoryId: 'cat_valorant',
+    subCategory: 'VP (TR)',
     type: ProductType.LICENSE_KEY,
     price: 2.50,
     costPrice: 2.00,
@@ -171,6 +190,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'val_485',
     title: '485 VP (TR)',
     categoryId: 'cat_valorant',
+    subCategory: 'VP (TR)',
     type: ProductType.LICENSE_KEY,
     price: 10.50,
     costPrice: 9.00,
@@ -184,6 +204,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'val_925',
     title: '925 VP (TR)',
     categoryId: 'cat_valorant',
+    subCategory: 'VP (TR)',
     type: ProductType.LICENSE_KEY,
     price: 19.00,
     costPrice: 17.00,
@@ -197,6 +218,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     id: 'val_1850',
     title: '1850 VP (TR)',
     categoryId: 'cat_valorant',
+    subCategory: 'VP (TR)',
     type: ProductType.LICENSE_KEY,
     price: 36.00,
     costPrice: 32.00,
