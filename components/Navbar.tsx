@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu } from 'lucide-react';
+import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu, LogIn } from 'lucide-react';
 import { useApp } from '../store';
 import SideDrawer from './SideDrawer';
 
@@ -139,7 +139,7 @@ const Navbar = () => {
                         <div className="relative" ref={profileRef}>
                             <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                                 <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold shadow-lg">
-                                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-lg"/> : user?.name.charAt(0)}
+                                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-lg"/> : user?.name.charAt(0).toUpperCase()}
                                 </div>
                                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -174,14 +174,14 @@ const Navbar = () => {
         </div>
 
         {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col gap-2">
+        <div className="md:hidden flex flex-col gap-3">
             <div className="flex items-center justify-between">
-                {/* Text Menu Button */}
+                {/* Menu Icon */}
                 <button 
                     onClick={() => setDrawerOpen(true)} 
-                    className="text-white font-bold text-sm bg-white/5 px-3 py-2 rounded-lg border border-white/10"
+                    className="text-white p-2"
                 >
-                    MENU
+                    <Menu className="w-6 h-6" />
                 </button>
                 
                 {/* Logo */}
@@ -190,17 +190,28 @@ const Navbar = () => {
                 </Link>
 
                 {/* Right: Auth or Notification */}
-                {isAuthenticated ? (
-                     <div className="relative" ref={notifRef}>
-                        <button onClick={() => setNotifOpen(!notifOpen)} className="text-white font-bold text-xs bg-white/5 px-3 py-2 rounded-lg border border-white/10 flex items-center gap-1">
-                             BİLDİRİŞ 
-                             {unreadCount > 0 && <span className="w-2 h-2 bg-red-500 rounded-full"></span>}
-                        </button>
-                        {notifOpen && renderNotifications()}
-                     </div>
-                ) : (
-                    <Link to="/auth" className="text-primary font-bold text-sm">GİRİŞ</Link>
-                )}
+                <div className="flex items-center gap-3">
+                    {isAuthenticated ? (
+                         <>
+                            {/* Mobile Balance */}
+                            <div onClick={() => navigate('/balance')} className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-lg border border-white/10 cursor-pointer">
+                                <span className="text-xs font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
+                            </div>
+
+                            <div className="relative" ref={notifRef}>
+                                <button onClick={() => setNotifOpen(!notifOpen)} className="text-white p-2 relative">
+                                     <Bell className="w-6 h-6" />
+                                     {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-[#0F1115]"></span>}
+                                </button>
+                                {notifOpen && renderNotifications()}
+                            </div>
+                         </>
+                    ) : (
+                        <Link to="/auth" className="text-white p-2">
+                            <UserIcon className="w-6 h-6" />
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {/* Search - Full Width */}
@@ -208,10 +219,11 @@ const Navbar = () => {
                 <input 
                     type="text" 
                     placeholder="Məhsul axtar..." 
-                    className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-4 text-sm text-white focus:border-primary outline-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 px-4 text-sm text-white focus:border-primary outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
             </form>
         </div>
 

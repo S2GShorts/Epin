@@ -19,7 +19,6 @@ import Balance from './pages/Balance';
 import Contact from './pages/Contact'; 
 import CategoryPage from './pages/CategoryPage';
 import SearchPage from './pages/SearchPage';
-import FloatingBalance from './components/FloatingBalance';
 import { AppProvider } from './store';
 import ChatWidget from './components/ChatWidget';
 import CartWidget from './components/CartWidget';
@@ -31,14 +30,15 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === '/auth';
 
-  // Desktop Header: pt-24
-  // Mobile: pt-20
+  // Reduced padding-top to decrease gap between header and content
+  // Desktop: pt-24 -> pt-24 (adjusted margins in Home instead)
+  // Mobile: pt-20 -> pt-28 to accommodate search bar
   
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdminPage && !isAuthPage && <Navbar />}
       
-      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-24 md:pt-28 pb-[90px] md:pb-0' : ''}`}>
+      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-[110px] md:pt-24 pb-[90px] md:pb-0' : ''}`}>
         {children}
       </main>
       
@@ -46,9 +46,12 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
       {!isAdminPage && !isAuthPage && <BottomNav />}
       {!isAdminPage && !isAuthPage && <ChatWidget />}
       
-      {/* Floating Elements */}
-      {!isAdminPage && !isAuthPage && <FloatingBalance />}
-      {!isAdminPage && !isAuthPage && <CartWidget />}
+      {/* Floating Cart - Hidden on Mobile to prevent duplicate with BottomNav */}
+      {!isAdminPage && !isAuthPage && (
+        <div className="hidden md:block">
+           <CartWidget />
+        </div>
+      )}
     </div>
   );
 };
