@@ -40,10 +40,10 @@ const BottomNav = () => {
             </button>
 
             {/* 3. CART (Enhanced Floating Effect) */}
-            <div className="relative flex justify-center -top-8">
+            <div className="relative -top-8 flex flex-col items-center justify-start pointer-events-none">
                 <button 
                     onClick={openCart} 
-                    className="absolute bg-gradient-to-tr from-primary to-secondary w-16 h-16 rounded-full border-[6px] border-[#0F1115] shadow-[0_0_20px_rgba(139,92,246,0.6)] transform transition-transform active:scale-90 hover:scale-110 flex items-center justify-center z-10 group"
+                    className="pointer-events-auto w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-secondary border-[6px] border-[#0F1115] shadow-[0_0_20px_rgba(139,92,246,0.6)] transform transition-transform active:scale-90 hover:scale-110 flex items-center justify-center z-10 group"
                 >
                     <ShoppingCart className="w-7 h-7 text-white drop-shadow-md" strokeWidth={2.5} />
                     {cart.length > 0 && (
@@ -54,7 +54,7 @@ const BottomNav = () => {
                     {/* Inner Pulse Ring */}
                     <div className="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-20"></div>
                 </button>
-                <span className="absolute -bottom-8 text-[11px] font-bold text-white drop-shadow-[0_0_5px_rgba(0,0,0,0.8)]">Səbət</span>
+                <span className="text-[10px] font-bold text-white mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Səbət</span>
             </div>
 
             {/* 4. Support */}

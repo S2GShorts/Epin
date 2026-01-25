@@ -52,24 +52,31 @@ const Navbar = () => {
       navigate('/');
       setProfileOpen(false);
   };
+  
+  const handleNotificationClick = (id: string) => {
+      markNotificationRead(id);
+  };
 
   // Reusable Notification Dropdown
   const renderNotifications = () => (
       <div className="absolute right-0 mt-3 w-80 glass border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-slide-up origin-top-right bg-[#1a1d24]">
         <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
             <h4 className="text-sm font-bold text-white">Bildirişlər</h4>
-            <button onClick={clearNotifications} className="text-xs text-primary hover:text-primary-dark">Təmizlə</button>
+            <button onClick={(e) => { e.stopPropagation(); clearNotifications(); }} className="text-xs text-primary hover:text-primary-dark font-bold">Təmizlə</button>
         </div>
         <div className="max-h-64 overflow-y-auto">
             {myNotifications.length === 0 ? <div className="p-8 text-center text-gray-500 text-sm">Bildiriş yoxdur.</div> : myNotifications.map(notif => (
-                <div key={notif.id} onClick={() => markNotificationRead(notif.id)} className={`p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors ${!notif.isRead ? 'bg-primary/5' : ''}`}>
-                    <p className={`text-sm ${!notif.isRead ? 'font-semibold text-white' : 'text-gray-400'}`}>{notif.title}</p>
+                <div key={notif.id} onClick={() => handleNotificationClick(notif.id)} className={`p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors ${!notif.isRead ? 'bg-primary/10 border-l-2 border-primary' : 'opacity-70'}`}>
+                    <p className={`text-sm ${!notif.isRead ? 'font-bold text-white' : 'text-gray-400'}`}>{notif.title}</p>
                     <p className="text-xs text-gray-500 mt-1">{notif.message}</p>
                 </div>
             ))}
         </div>
     </div>
   );
+
+  const navLinkClass = "px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 bg-white/5 text-gray-300 hover:text-white hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]";
+  const activeNavLinkClass = "px-4 py-2 rounded-xl text-sm font-bold bg-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]";
 
   return (
     <>
@@ -87,22 +94,22 @@ const Navbar = () => {
         <div className="hidden md:flex items-center justify-between gap-8">
             
             {/* Left: Logo & Links */}
-            <div className="flex items-center gap-8 shrink-0">
-                <Link to="/" className="flex items-center gap-2 group">
+            <div className="flex items-center gap-6 shrink-0">
+                <Link to="/" className="flex items-center gap-2 group mr-4">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">D</div>
                     <span className="text-2xl font-bold text-white tracking-tight">GAME<span className="text-primary font-light">PAY</span></span>
                 </Link>
 
-                <div className="flex items-center gap-6">
-                    <Link to="/" className="text-sm font-bold text-gray-300 hover:text-white transition-colors">Ana Səhifə</Link>
-                    <Link to="/categories" className="text-sm font-bold text-gray-300 hover:text-white transition-colors">Kateqoriyalar</Link>
-                    <Link to="/page/haqqimizda" className="text-sm font-bold text-gray-300 hover:text-white transition-colors">Haqqımızda</Link>
-                    <Link to="/contact" className="text-sm font-bold text-gray-300 hover:text-white transition-colors">Əlaqə</Link>
+                <div className="flex items-center gap-3">
+                    <Link to="/" className={location.pathname === '/' ? activeNavLinkClass : navLinkClass}>Ana Səhifə</Link>
+                    <Link to="/categories" className={location.pathname === '/categories' ? activeNavLinkClass : navLinkClass}>Kateqoriyalar</Link>
+                    <Link to="/page/haqqimizda" className={location.pathname === '/page/haqqimizda' ? activeNavLinkClass : navLinkClass}>Haqqımızda</Link>
+                    <Link to="/contact" className={location.pathname === '/contact' ? activeNavLinkClass : navLinkClass}>Əlaqə</Link>
                 </div>
             </div>
 
             {/* Middle: Search */}
-            <div className="flex-1 max-w-xl">
+            <div className="flex-1 max-w-md">
                 <form onSubmit={handleSearch} className="relative w-full group">
                     <input 
                         type="text" 
@@ -131,7 +138,7 @@ const Navbar = () => {
                         <div className="relative" ref={notifRef}>
                             <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors border border-white/5">
                                 <Bell className="w-5 h-5" />
-                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
+                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>}
                             </button>
                             {notifOpen && renderNotifications()}
                         </div>
@@ -166,7 +173,7 @@ const Navbar = () => {
                     </>
                 ) : (
                     <div className="flex items-center gap-3">
-                        <Link to="/auth" className="text-white font-bold hover:text-primary transition-colors text-sm">Daxil Ol</Link>
+                        <Link to="/auth" className="text-white font-bold hover:text-primary transition-colors text-sm px-4 py-2">Daxil Ol</Link>
                         <Link to="/auth" className="bg-white text-black px-5 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 text-sm">Qeydiyyat</Link>
                     </div>
                 )}

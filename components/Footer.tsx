@@ -18,44 +18,44 @@ const Footer = () => {
   return (
     <footer className="bg-[#0b0d12] border-t border-white/5 pt-0 pb-28 md:pb-10 font-sans mt-auto">
       
-      {/* INFO BAR - S2GEPIN Style */}
+      {/* INFO BAR - Enhanced Trust Text */}
       <div className="border-b border-white/5 bg-white/[0.02]">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="flex items-center gap-4 group">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 py-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  <div className="flex items-start gap-4 group">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 shrink-0 mt-1">
                           <Zap className="w-6 h-6" />
                       </div>
                       <div>
-                          <h4 className="font-bold text-white text-sm">Sürətli Təslimat</h4>
-                          <p className="text-gray-500 text-xs">Anında yükləmə</p>
+                          <h4 className="font-bold text-white text-base mb-1">Avtomatik Təslimat</h4>
+                          <p className="text-gray-400 text-xs leading-relaxed">Ödəniş təsdiqləndikdən dərhal sonra məhsul hesabınıza və ya ekrana anında yansıyır.</p>
                       </div>
                   </div>
-                  <div className="flex items-center gap-4 group">
-                      <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
+                  <div className="flex items-start gap-4 group">
+                      <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300 shrink-0 mt-1">
                           <CreditCard className="w-6 h-6" />
                       </div>
                       <div>
-                          <h4 className="font-bold text-white text-sm">Sərfəli Qiymət</h4>
-                          <p className="text-gray-500 text-xs">Ən ucuz təkliflər</p>
+                          <h4 className="font-bold text-white text-base mb-1">Ən Sərfəli Qiymətlər</h4>
+                          <p className="text-gray-400 text-xs leading-relaxed">Bazarda ən rəqabətli qiymətlər və mütəmadi endirimlərlə büdcənizə qənaət edin.</p>
                       </div>
                   </div>
-                  <div className="flex items-center gap-4 group">
-                      <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300">
+                  <div className="flex items-start gap-4 group">
+                      <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300 shrink-0 mt-1">
                           <ShieldCheck className="w-6 h-6" />
                       </div>
                       <div>
-                          <h4 className="font-bold text-white text-sm">Etibarlı Xidmət</h4>
-                          <p className="text-gray-500 text-xs">100% Güvənli</p>
+                          <h4 className="font-bold text-white text-base mb-1">Tam Zəmanətli</h4>
+                          <p className="text-gray-400 text-xs leading-relaxed">Bütün məhsullara rəsmi zəmanət verilir. Şəxsi məlumatlarınız 100% qorunur.</p>
                       </div>
                   </div>
-                  <div className="flex items-center gap-4 group">
-                      <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                  <div className="flex items-start gap-4 group">
+                      <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shrink-0 mt-1">
                           <Headphones className="w-6 h-6" />
                       </div>
                       <div>
-                          <h4 className="font-bold text-white text-sm">Canlı Dəstək</h4>
-                          <p className="text-gray-500 text-xs">7/24 Xidmətinizdə</p>
+                          <h4 className="font-bold text-white text-base mb-1">7/24 Canlı Dəstək</h4>
+                          <p className="text-gray-400 text-xs leading-relaxed">Yaranan hər hansı sual və ya problem üçün peşəkar komandamız hər zaman yanınızdadır.</p>
                       </div>
                   </div>
               </div>
@@ -193,10 +193,8 @@ const Footer = () => {
                 © {new Date().getFullYear()} Bütün hüquqlar qorunur.
             </p>
             
-            <div className="flex items-center gap-2 opacity-70 grayscale hover:grayscale-0 transition-all">
-                <div className="h-8 w-12 bg-white/5 rounded border border-white/10 flex items-center justify-center text-[10px] text-white font-bold">VISA</div>
-                <div className="h-8 w-12 bg-white/5 rounded border border-white/10 flex items-center justify-center text-[10px] text-white font-bold">MC</div>
-                <div className="h-8 w-12 bg-white/5 rounded border border-white/10 flex items-center justify-center text-[10px] text-white font-bold">M10</div>
+            <div className="flex items-center gap-2 opacity-50">
+               {/* Payment icons removed as requested */}
             </div>
         </div>
       </div>
