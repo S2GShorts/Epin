@@ -117,12 +117,7 @@ const Navbar = () => {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-4 shrink-0">
-                {/* Cart Icon for Desktop */}
-                <button onClick={openCart} className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors border border-white/5 group">
-                    <ShoppingCart className="w-5 h-5 group-hover:text-primary transition-colors" />
-                    {cart.length > 0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0F1115]">{cart.length}</span>}
-                </button>
-
+                
                 {isAuthenticated ? (
                     <>
                         <div className="flex items-center gap-3 bg-white/5 border border-white/10 pl-4 pr-1 py-1 rounded-xl">
