@@ -49,12 +49,13 @@ const CartWidget = () => {
 
   return (
     <>
-      {/* Floating Trigger Button (Hidden on Mobile, Positioned left of Chat on Desktop) */}
+      {/* Floating Trigger Button (Hidden on Mobile, Visible on Desktop) */}
+      {/* Positioned at right-24 to sit left of the ChatWidget which is usually at right-6 */}
       <button 
         onClick={openCart}
-        className="hidden md:flex items-center justify-center fixed bottom-6 right-24 z-50 bg-gradient-to-tr from-primary to-secondary w-14 h-14 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform active:scale-95 group"
+        className="hidden md:flex items-center justify-center fixed bottom-6 right-24 z-50 bg-gradient-to-tr from-primary to-secondary w-16 h-16 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform active:scale-95 group"
       >
-        <ShoppingCart className="w-7 h-7 text-white" />
+        <ShoppingCart className="w-8 h-8 text-white" />
         {cart.length > 0 && (
             <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-[#0F1115] animate-bounce">
                 {cart.length}
@@ -62,13 +63,13 @@ const CartWidget = () => {
         )}
       </button>
 
-      {/* Backdrop */}
+      {/* Backdrop - High Z-index to cover BottomNav on mobile */}
       {isCartOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm transition-opacity" onClick={reset} />
+        <div className="fixed inset-0 bg-black/80 z-[100] backdrop-blur-sm transition-opacity" onClick={reset} />
       )}
 
-      {/* Drawer */}
-      <div className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-surface/95 border-l border-white/10 z-[70] transform transition-transform duration-300 ease-out shadow-2xl flex flex-col backdrop-blur-xl ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* Drawer - Z-index 101 to be above backdrop */}
+      <div className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-surface/95 border-l border-white/10 z-[101] transform transition-transform duration-300 ease-out shadow-2xl flex flex-col backdrop-blur-xl ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
          
          {/* Header */}
          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
