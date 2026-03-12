@@ -108,44 +108,21 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Helper for LocalStorage
-const usePersistedState = <T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
-  const [state, setState] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(state));
-    } catch (error) {
-      console.error(error);
-    }
-  }, [key, state]);
-
-  return [state, setState];
-};
-
 export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
   // UI State
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Use persisted state for critical data
-  const [user, setUser] = usePersistedState<User | null>('ds_user', null);
-  const [usersList, setUsersList] = usePersistedState<User[]>('ds_users', MOCK_USERS);
-  const [orders, setOrders] = usePersistedState<Order[]>('ds_orders', []);
-  const [cart, setCart] = usePersistedState<CartItem[]>('ds_cart', []);
-  const [stocks, setStocks] = usePersistedState<StockCode[]>('ds_stocks', []);
+  // Use state for critical data (No LocalStorage)
+  const [user, setUser] = useState<User | null>(null);
+  const [usersList, setUsersList] = useState<User[]>(MOCK_USERS);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [stocks, setStocks] = useState<StockCode[]>([]);
   
   // Data State
-  const [products, setProducts] = usePersistedState<Product[]>('ds_products', INITIAL_PRODUCTS);
-  const [categories, setCategories] = usePersistedState<Category[]>('ds_categories', INITIAL_CATEGORIES);
-  const [heroSlides, setHeroSlides] = usePersistedState<HeroSlide[]>('ds_hero_slides', INITIAL_HERO_SLIDES);
+  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(INITIAL_HERO_SLIDES);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(INITIAL_PAYMENT_METHODS);
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>(MOCK_PROMO_CODES);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
@@ -161,7 +138,7 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
     { id: 'a2', title: 'Zəmanət Şərtləri', content: 'Bütün məhsullara rəsmi zəmanət verilir...' }
   ]);
   
-  const [pages, setPages] = usePersistedState<Page[]>('ds_pages', [
+  const [pages, setPages] = useState<Page[]>([
       { id: 'pg1', title: 'Haqqımızda', slug: 'haqqimizda', content: 'GamePay Azərbaycanın ən böyük rəqəmsal oyun platformasıdır...', category: 'corporate', isActive: true },
       { id: 'pg2', title: 'Gizlilik Politikası', slug: 'gizlilik-politikasi', content: 'Sizin məlumatlarınız bizim üçün önəmlidir...', category: 'agreement', isActive: true },
       { id: 'pg3', title: 'İstifadəçi Sözləşməsi', slug: 'istifadeci-sozlesmesi', content: 'Sayt istifadə qaydaları...', category: 'agreement', isActive: true },
