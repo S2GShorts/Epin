@@ -802,15 +802,15 @@ const Admin = () => {
                           <h4 className="font-bold mb-4 text-primary">{isEditingPage ? 'Redaktə Et' : 'Yeni Səhifə Yarat'}</h4>
                           <div className="space-y-4">
                               <div>
-                                  <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Başlıq</label>
+                                  <label className="label">Başlıq</label>
                                   <input className="input" value={pageForm.title} onChange={e => setPageForm({...pageForm, title: e.target.value})} />
                               </div>
                               <div>
-                                  <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Slug (URL)</label>
+                                  <label className="label">Slug (URL)</label>
                                   <input className="input text-sm font-mono" placeholder="Auto-generated" value={pageForm.slug} onChange={e => setPageForm({...pageForm, slug: e.target.value})} />
                               </div>
                               <div>
-                                  <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Kateqoriya</label>
+                                  <label className="label">Kateqoriya</label>
                                   <select className="input" value={pageForm.category} onChange={e => setPageForm({...pageForm, category: e.target.value as any})}>
                                       <option value="corporate">Haqqımızda / Korporativ</option>
                                       <option value="agreement">Sözləşmə / Qayda</option>
@@ -818,7 +818,7 @@ const Admin = () => {
                                   </select>
                               </div>
                               <div>
-                                  <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Məzmun (HTML/Text)</label>
+                                  <label className="label">Məzmun (HTML/Text)</label>
                                   <textarea className="input h-64 font-mono text-sm" value={pageForm.content} onChange={e => setPageForm({...pageForm, content: e.target.value})}></textarea>
                               </div>
                               <button onClick={handleSavePage} className="w-full bg-primary hover:bg-primary-dark font-bold py-3 rounded-xl text-white transition-colors">Yadda Saxla</button>
@@ -935,8 +935,9 @@ const Admin = () => {
       </div>
 
       <style>{`
-        .input { @apply w-full bg-surfaceHighlight border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all; }
-        .label { @apply text-xs text-gray-400 uppercase font-bold mb-1 block; }
+        .input { width: 100%; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 0.75rem; color: white; outline: none; transition: all 0.3s; }
+        .input:focus { border-color: #8b5cf6; }
+        .label { font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem; display: block; }
       `}</style>
     </div>
   );

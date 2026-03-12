@@ -14,10 +14,10 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
 
   const links = [
       { id: 'balance', name: 'Balans Artır', path: '/balance' },
-      ...categories.filter(c => c.isPopular).map(c => ({ id: c.id, name: c.name, path: `/category/${c.id}` })),
-      { id: 'all', name: 'Bütün Oyunlar', path: '/categories' },
+      { id: 'giveaways', name: 'Çəkilişlər', path: '/giveaways' },
+      { id: 'news', name: 'Xəbərlər', path: '/news' },
       { id: 'about', name: 'Haqqımızda', path: '/page/haqqimizda' },
-      { id: 'contact', name: 'Əlaqə', path: '/contact' },
+      { id: 'rules', name: 'Qaydalar', path: '/rules' },
   ];
 
   return (

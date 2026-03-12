@@ -86,8 +86,8 @@ const Navbar = () => {
     <header 
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
         ${scrolled 
-            ? 'bg-[#0F1115]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl pb-2 pt-2' 
-            : 'bg-gradient-to-b from-[#0F1115] to-transparent pb-2 pt-4'}`}
+            ? 'bg-[#0F1115]/95 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] pb-2 pt-2' 
+            : 'bg-gradient-to-b from-[#0F1115] via-[#0F1115]/80 to-transparent pb-2 pt-4'}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -138,12 +138,6 @@ const Navbar = () => {
 
                 {isAuthenticated ? (
                     <>
-                        {/* Daily Reward */}
-                        <button onClick={() => navigate('/giveaways')} className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-orange-500/20 animate-pulse-slow">
-                            <Gift className="w-4 h-4" />
-                            <span>Gündəlik Hədiyyə</span>
-                        </button>
-
                         {/* Balance Display */}
                         <div className="hidden sm:flex items-center gap-3 bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 pl-4 pr-1 py-1 rounded-full">
                             <span className="text-sm font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
@@ -212,16 +206,16 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Search Bar (Visible only on small screens) */}
-        <div className="mt-4 md:hidden">
+        <div className="mt-3 md:hidden">
             <form onSubmit={handleSearch} className="relative w-full">
                 <input 
                     type="text" 
                     placeholder="Məhsul axtar..." 
-                    className="w-full bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 rounded-full py-2.5 pl-10 px-4 text-sm text-white focus:border-primary outline-none"
+                    className="w-full bg-[#1a1d24]/90 backdrop-blur-xl border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none shadow-inner transition-all"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
             </form>
         </div>
 
