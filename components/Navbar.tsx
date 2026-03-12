@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu, LogIn } from 'lucide-react';
+import { Bell, ChevronDown, User as UserIcon, Heart, Search, LogOut, Plus, Menu, ShoppingCart, Flame, Sparkles, Gift } from 'lucide-react';
 import { useApp } from '../store';
 import SideDrawer from './SideDrawer';
 
 const Navbar = () => {
-  const { user, isAuthenticated, notifications, markNotificationRead, clearNotifications, logout } = useApp();
+  const { user, isAuthenticated, notifications, markNotificationRead, clearNotifications, logout, cart, isCartOpen, openCart } = useApp();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,6 +46,7 @@ const Navbar = () => {
 
   const myNotifications = notifications.filter(n => n.userId === user?.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const unreadCount = myNotifications.filter(n => !n.isRead).length;
+  const cartItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleLogout = () => {
       logout();
@@ -75,83 +76,105 @@ const Navbar = () => {
     </div>
   );
 
-  const navLinkClass = "px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 bg-white/5 text-gray-300 hover:text-white hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]";
-  const activeNavLinkClass = "px-4 py-2 rounded-xl text-sm font-bold bg-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]";
+  const navLinkClass = "flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 text-gray-300 hover:text-white hover:bg-white/10";
+  const activeNavLinkClass = "flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]";
 
   return (
     <>
     <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     
-    <nav 
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b 
+    <header 
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
         ${scrolled 
-            ? 'bg-[#0F1115]/95 backdrop-blur-xl border-white/10 shadow-2xl py-2' 
-            : 'bg-[#0F1115]/50 backdrop-blur-md border-transparent py-3 md:py-4'}`}
+            ? 'bg-[#0F1115]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl pb-2 pt-2' 
+            : 'bg-gradient-to-b from-[#0F1115] to-transparent pb-2 pt-4'}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* DESKTOP LAYOUT */}
-        <div className="hidden md:flex items-center justify-between gap-8">
+        {/* TOP ROW: Logo, Search, Actions */}
+        <div className="flex items-center justify-between gap-4 md:gap-8">
             
-            {/* Left: Logo & Links */}
-            <div className="flex items-center gap-6 shrink-0">
-                <Link to="/" className="flex items-center gap-2 group mr-4">
+            {/* Left: Logo */}
+            <div className="flex items-center shrink-0">
+                <Link to="/" className="flex items-center gap-2 group">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">D</div>
-                    <span className="text-2xl font-bold text-white tracking-tight">GAME<span className="text-primary font-light">PAY</span></span>
+                    <span className="text-2xl font-black text-white tracking-tight hidden sm:block">GAME<span className="text-primary font-light">PAY</span></span>
                 </Link>
-
-                <div className="flex items-center gap-3">
-                    <Link to="/" className={location.pathname === '/' ? activeNavLinkClass : navLinkClass}>Ana Səhifə</Link>
-                    <Link to="/categories" className={location.pathname === '/categories' ? activeNavLinkClass : navLinkClass}>Kateqoriyalar</Link>
-                    <Link to="/page/haqqimizda" className={location.pathname === '/page/haqqimizda' ? activeNavLinkClass : navLinkClass}>Haqqımızda</Link>
-                    <Link to="/contact" className={location.pathname === '/contact' ? activeNavLinkClass : navLinkClass}>Əlaqə</Link>
-                </div>
             </div>
 
-            {/* Middle: Search */}
-            <div className="flex-1 max-w-md">
+            {/* Middle: Prominent Search Bar */}
+            <div className="flex-1 max-w-2xl hidden md:block">
                 <form onSubmit={handleSearch} className="relative w-full group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    </div>
                     <input 
                         type="text" 
-                        placeholder="Məhsul axtar..." 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:bg-black/40 focus:border-primary transition-all duration-300 outline-none placeholder-gray-500 shadow-inner"
+                        placeholder="Oyun, kod, e-pin və ya məhsul axtar..." 
+                        className="w-full bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 rounded-full py-3 pl-12 pr-4 text-sm text-white focus:bg-[#1a1d24] focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none placeholder-gray-500 shadow-inner"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <Search className="absolute left-3.5 top-2.5 w-5 h-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+                        <button type="submit" className="bg-primary hover:bg-primary-dark text-white px-4 py-1.5 rounded-full text-xs font-bold transition-colors shadow-lg shadow-primary/20">
+                            Axtar
+                        </button>
+                    </div>
                 </form>
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-4 shrink-0">
+            <div className="flex items-center gap-3 md:gap-4 shrink-0">
                 
+                {/* Cart Button (Always visible) */}
+                <button onClick={openCart} className="relative p-2.5 bg-[#1a1d24]/80 hover:bg-white/10 rounded-full text-gray-300 hover:text-white transition-colors border border-white/5 backdrop-blur-md">
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartItemsCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full shadow-lg border border-[#0F1115]">
+                            {cartItemsCount}
+                        </span>
+                    )}
+                </button>
+
                 {isAuthenticated ? (
                     <>
+                        {/* Daily Reward */}
+                        <button onClick={() => navigate('/giveaways')} className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-orange-500/20 animate-pulse-slow">
+                            <Gift className="w-4 h-4" />
+                            <span>Gündəlik Hədiyyə</span>
+                        </button>
+
                         {/* Balance Display */}
-                        <div className="flex items-center gap-3 bg-white/5 border border-white/10 pl-4 pr-1 py-1 rounded-xl">
+                        <div className="hidden sm:flex items-center gap-3 bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 pl-4 pr-1 py-1 rounded-full">
                             <span className="text-sm font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
-                            <button onClick={() => navigate('/balance')} className="bg-primary hover:bg-primary-dark text-white p-1.5 rounded-lg transition-colors shadow-lg shadow-primary/20">
+                            <button onClick={() => navigate('/balance')} className="bg-primary hover:bg-primary-dark text-white p-1.5 rounded-full transition-colors shadow-lg shadow-primary/20">
                                 <Plus className="w-4 h-4" />
                             </button>
                         </div>
 
+                        {/* Notifications */}
                         <div className="relative" ref={notifRef}>
-                            <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors border border-white/5">
+                            <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2.5 bg-[#1a1d24]/80 hover:bg-white/10 rounded-full text-gray-300 hover:text-white transition-colors border border-white/5 backdrop-blur-md">
                                 <Bell className="w-5 h-5" />
                                 {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>}
                             </button>
                             {notifOpen && renderNotifications()}
                         </div>
 
+                        {/* Profile Dropdown */}
                         <div className="relative" ref={profileRef}>
-                            <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                                <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold shadow-lg">
-                                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-lg"/> : user?.name.charAt(0).toUpperCase()}
+                            <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all">
+                                <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover"/> : user?.name.charAt(0).toUpperCase()}
                                 </div>
-                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform hidden sm:block ${profileOpen ? 'rotate-180' : ''}`} />
                             </button>
                             {profileOpen && (
                                 <div className="absolute right-0 mt-4 w-56 glass border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-slide-up origin-top-right bg-[#1a1d24]">
+                                    <div className="px-3 py-2 border-b border-white/5 mb-2 sm:hidden">
+                                        <p className="text-xs text-gray-400">Balans</p>
+                                        <p className="text-sm font-mono font-bold text-white">{user?.balance.toFixed(2)} ₼</p>
+                                    </div>
                                     <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
                                         <UserIcon className="w-4 h-4" /> Profil
                                     </Link>
@@ -160,7 +183,7 @@ const Navbar = () => {
                                     </Link>
                                     {user?.role === 'admin' && (
                                         <Link to="/admin" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
-                                            Admin Panel
+                                            <Sparkles className="w-4 h-4" /> Admin Panel
                                         </Link>
                                     )}
                                     <div className="h-px bg-white/5 my-2"></div>
@@ -172,61 +195,29 @@ const Navbar = () => {
                         </div>
                     </>
                 ) : (
-                    <div className="flex items-center gap-3">
-                        <Link to="/auth" className="text-white font-bold hover:text-primary transition-colors text-sm px-4 py-2">Daxil Ol</Link>
-                        <Link to="/auth" className="bg-white text-black px-5 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 text-sm">Qeydiyyat</Link>
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <Link to="/auth" className="text-white font-bold hover:text-primary transition-colors text-sm px-2 md:px-4 py-2 hidden sm:block">Daxil Ol</Link>
+                        <Link to="/auth" className="bg-white text-black px-4 md:px-6 py-2 md:py-2.5 rounded-full font-bold hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 text-xs md:text-sm">Qeydiyyat</Link>
                     </div>
                 )}
+
+                {/* Mobile Menu Toggle */}
+                <button 
+                    onClick={() => setDrawerOpen(true)} 
+                    className="md:hidden text-gray-300 hover:text-white p-2 bg-[#1a1d24]/80 rounded-full border border-white/10"
+                >
+                    <Menu className="w-5 h-5" />
+                </button>
             </div>
         </div>
 
-        {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-                {/* Menu Icon */}
-                <button 
-                    onClick={() => setDrawerOpen(true)} 
-                    className="text-white p-2"
-                >
-                    <Menu className="w-6 h-6" />
-                </button>
-                
-                {/* Logo */}
-                <Link to="/" className="flex items-center gap-1">
-                    <span className="font-black text-white text-xl tracking-tight">GAME<span className="text-primary">PAY</span></span>
-                </Link>
-
-                {/* Right: Auth or Notification */}
-                <div className="flex items-center gap-3">
-                    {isAuthenticated ? (
-                         <>
-                            {/* Mobile Balance */}
-                            <div onClick={() => navigate('/balance')} className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-lg border border-white/10 cursor-pointer">
-                                <span className="text-xs font-mono font-bold text-white">{user?.balance.toFixed(2)} <span className="text-primary">₼</span></span>
-                            </div>
-
-                            <div className="relative" ref={notifRef}>
-                                <button onClick={() => setNotifOpen(!notifOpen)} className="text-white p-2 relative">
-                                     <Bell className="w-6 h-6" />
-                                     {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-[#0F1115]"></span>}
-                                </button>
-                                {notifOpen && renderNotifications()}
-                            </div>
-                         </>
-                    ) : (
-                        <Link to="/auth" className="text-white p-2">
-                            <UserIcon className="w-6 h-6" />
-                        </Link>
-                    )}
-                </div>
-            </div>
-
-            {/* Search - Full Width */}
+        {/* Mobile Search Bar (Visible only on small screens) */}
+        <div className="mt-4 md:hidden">
             <form onSubmit={handleSearch} className="relative w-full">
                 <input 
                     type="text" 
                     placeholder="Məhsul axtar..." 
-                    className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 px-4 text-sm text-white focus:border-primary outline-none"
+                    className="w-full bg-[#1a1d24]/80 backdrop-blur-md border border-white/10 rounded-full py-2.5 pl-10 px-4 text-sm text-white focus:border-primary outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -234,8 +225,32 @@ const Navbar = () => {
             </form>
         </div>
 
+        {/* BOTTOM ROW: Rounded Floating Navbar (Desktop) */}
+        <div className={`hidden md:flex justify-center transition-all duration-300 ${scrolled ? 'mt-3' : 'mt-5'}`}>
+            <div className="bg-[#1a1d24]/60 backdrop-blur-lg border border-white/10 rounded-full p-1.5 flex items-center gap-1 shadow-2xl">
+                <Link to="/" className={location.pathname === '/' ? activeNavLinkClass : navLinkClass}>
+                    Ana Səhifə
+                </Link>
+                <Link to="/categories" className={location.pathname === '/categories' ? activeNavLinkClass : navLinkClass}>
+                    Kateqoriyalar
+                </Link>
+                <Link to="/giveaways" className={location.pathname === '/giveaways' ? activeNavLinkClass : navLinkClass}>
+                    <Flame className="w-4 h-4 text-orange-500" /> Çəkilişlər
+                </Link>
+                <Link to="/news" className={location.pathname === '/news' ? activeNavLinkClass : navLinkClass}>
+                    Xəbərlər
+                </Link>
+                <Link to="/page/haqqimizda" className={location.pathname === '/page/haqqimizda' ? activeNavLinkClass : navLinkClass}>
+                    Haqqımızda
+                </Link>
+                <Link to="/contact" className={location.pathname === '/contact' ? activeNavLinkClass : navLinkClass}>
+                    Əlaqə
+                </Link>
+            </div>
+        </div>
+
       </div>
-    </nav>
+    </header>
     </>
   );
 };

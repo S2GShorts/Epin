@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../store';
 import ProductCard from '../components/ProductCard';
-import { Search, ChevronRight, Zap, ArrowRight, Gamepad2, Gift, MessageSquare, ChevronLeft } from 'lucide-react';
+import { Search, ChevronRight, Zap, ArrowRight, Gamepad2, Gift, MessageSquare, ChevronLeft, Timer, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
@@ -10,6 +10,12 @@ const Home = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Flash Sale Timer
+  const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 30, seconds: 0 });
+  
+  // Live Purchase Notification
+  const [livePurchase, setLivePurchase] = useState<{user: string, product: string, time: string} | null>(null);
 
   useEffect(() => {
     if (heroSlides.length > 0) {
@@ -19,6 +25,35 @@ const Home = () => {
       return () => clearInterval(timer);
     }
   }, [heroSlides.length]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const names = ['Ali***', 'Vel***', 'Sam***', 'Ays***', 'Nig***', 'Orx***', 'Elv***'];
+    const items = ['Valorant 1200 VP', 'PUBG 660 UC', 'Steam 50 TL', 'Free Fire 100 Diamond', 'Roblox 800 Robux'];
+    
+    const interval = setInterval(() => {
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      const randomTime = Math.floor(Math.random() * 10) + 1;
+      
+      setLivePurchase({ user: randomName, product: randomItem, time: `${randomTime} dəq. əvvəl` });
+      
+      setTimeout(() => setLivePurchase(null), 5000);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Scroll logic for Categories
   const scroll = (direction: 'left' | 'right') => {
@@ -54,17 +89,17 @@ const Home = () => {
          {/* Scroll Container */}
          <div 
             ref={scrollRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide py-4 px-2 scroll-smooth"
+            className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide py-4 px-2 scroll-smooth"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
          >
              {categories.map((cat) => (
                  <div 
                     key={cat.id} 
                     onClick={() => navigate(`/category/${cat.id}`)}
-                    className="flex flex-col items-center gap-3 cursor-pointer group/item min-w-[90px]"
+                    className="flex flex-col items-center gap-3 cursor-pointer group/item min-w-[80px] md:min-w-[90px]"
                  >
-                     <div className="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-gray-700 to-gray-900 group-hover/item:from-primary group-hover/item:to-secondary transition-all shadow-lg">
-                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-background relative">
+                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full p-[3px] bg-gradient-to-tr from-gray-700 via-gray-600 to-gray-800 group-hover/item:from-primary group-hover/item:via-purple-500 group-hover/item:to-secondary transition-all shadow-lg group-hover/item:shadow-primary/30 animate-pulse-slow">
+                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-background relative bg-black">
                             {cat.image ? (
                                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" />
                             ) : (
@@ -72,7 +107,7 @@ const Home = () => {
                             )}
                         </div>
                      </div>
-                     <span className="text-xs text-gray-400 group-hover/item:text-white font-medium text-center truncate w-full transition-colors">{cat.name}</span>
+                     <span className="text-[10px] md:text-xs text-gray-400 group-hover/item:text-white font-bold text-center truncate w-full transition-colors">{cat.name}</span>
                  </div>
              ))}
          </div>
@@ -147,7 +182,39 @@ const Home = () => {
          </div>
       </div>
 
-      {/* 3. POPULAR PRODUCTS SECTION */}
+      {/* 3. FLASH SALES SECTION */}
+      <div className="max-w-7xl mx-auto px-4 mb-16">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 bg-gradient-to-r from-red-500/10 to-transparent p-4 rounded-xl border border-red-500/20 gap-4">
+              <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-red-500 animate-pulse" />
+                  </div>
+                  <div>
+                      <h2 className="text-xl font-black text-white uppercase italic tracking-wider">Günün Fürsətləri</h2>
+                      <p className="text-xs text-red-400 font-bold">Məhdud sayda endirimli məhsullar</p>
+                  </div>
+              </div>
+              <div className="flex items-center gap-2 bg-black/50 px-4 py-2 rounded-lg border border-white/5">
+                  <Timer className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-400 font-bold">Bitməsinə qaldı:</span>
+                  <div className="flex items-center gap-1">
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-mono font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
+                      <span className="text-red-500 font-bold">:</span>
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-mono font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                      <span className="text-red-500 font-bold">:</span>
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-mono font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                  </div>
+              </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {products.filter(p => p.discountPrice).slice(0, 4).map(product => (
+                  <ProductCard key={product.id} product={product} />
+              ))}
+          </div>
+      </div>
+
+      {/* 4. POPULAR PRODUCTS SECTION */}
       <div className="max-w-7xl mx-auto px-4 mb-16">
           <div className="flex items-center justify-between mb-6 bg-white/5 p-4 rounded-xl border border-white/10">
               <div className="flex items-center gap-3">
@@ -228,7 +295,7 @@ const Home = () => {
           </div>
       </div>
 
-      {/* 6. NEWS / BLOG SECTION */}
+      {/* 7. NEWS / BLOG SECTION */}
       <div className="max-w-7xl mx-auto px-4 mb-12">
           <div className="flex items-center justify-between mb-6 bg-white/5 p-4 rounded-xl border border-white/10">
               <div className="flex items-center gap-3">
@@ -258,6 +325,20 @@ const Home = () => {
                        </div>
                    </div>
                ))}
+          </div>
+      </div>
+
+      {/* LIVE PURCHASE NOTIFICATION */}
+      <div className={`fixed bottom-24 md:bottom-8 left-4 z-50 transition-all duration-500 transform ${livePurchase ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
+          <div className="bg-[#1a1d24]/90 backdrop-blur-md border border-primary/30 rounded-2xl p-3 shadow-[0_0_20px_rgba(139,92,246,0.2)] flex items-center gap-3 max-w-xs">
+              <div className="w-10 h-10 bg-gradient-to-tr from-primary to-secondary rounded-xl flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                  <p className="text-xs text-gray-400"><span className="text-white font-bold">{livePurchase?.user}</span> satın aldı:</p>
+                  <p className="text-sm font-bold text-primary truncate">{livePurchase?.product}</p>
+                  <p className="text-[10px] text-gray-500 mt-0.5">{livePurchase?.time}</p>
+              </div>
           </div>
       </div>
 

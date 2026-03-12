@@ -265,6 +265,7 @@ const Admin = () => {
       { id: 'products', label: 'Məhsullar', icon: Package },
       { id: 'stock', label: 'Stok', icon: Database },
       { id: 'pages', label: 'Səhifələr (CMS)', icon: File },
+      { id: 'content', label: 'Məzmun & Finans', icon: FileText },
       { id: 'users', label: 'İstifadəçilər', icon: Users },
       { id: 'settings', label: 'Ayarlar & Dizayn', icon: Settings },
   ];
@@ -316,6 +317,258 @@ const Admin = () => {
       {/* MAIN CONTENT */}
       <div className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto bg-background">
           
+          {/* DASHBOARD */}
+          {activeTab === 'dashboard' && (
+              <div className="space-y-6 animate-fade-in">
+                  <h2 className="text-3xl font-bold mb-6">Dashboard</h2>
+                  
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                      <div className="glass-card p-6 rounded-2xl border border-white/10 flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                              <ShoppingBag className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <p className="text-gray-400 text-sm font-bold">Ümumi Sifariş</p>
+                              <h3 className="text-2xl font-black text-white">{orders.length}</h3>
+                          </div>
+                      </div>
+                      <div className="glass-card p-6 rounded-2xl border border-white/10 flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500">
+                              <Wallet className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <p className="text-gray-400 text-sm font-bold">Ümumi Gəlir</p>
+                              <h3 className="text-2xl font-black text-white">{orders.filter(o => o.status === 'COMPLETED').reduce((acc, o) => acc + o.totalPrice, 0).toFixed(2)} ₼</h3>
+                          </div>
+                      </div>
+                      <div className="glass-card p-6 rounded-2xl border border-white/10 flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500">
+                              <Users className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <p className="text-gray-400 text-sm font-bold">İstifadəçilər</p>
+                              <h3 className="text-2xl font-black text-white">{usersList.length}</h3>
+                          </div>
+                      </div>
+                      <div className="glass-card p-6 rounded-2xl border border-white/10 flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500">
+                              <Package className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <p className="text-gray-400 text-sm font-bold">Məhsullar</p>
+                              <h3 className="text-2xl font-black text-white">{products.length}</h3>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Recent Activity */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-4">Son Fəaliyyətlər</h3>
+                      <div className="space-y-4">
+                          {activityLogs.slice(0, 5).map(log => (
+                              <div key={log.id} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/5">
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                  <div className="flex-1">
+                                      <p className="text-sm text-white">{log.action}</p>
+                                      <p className="text-xs text-gray-500">{new Date(log.date).toLocaleString()}</p>
+                                  </div>
+                              </div>
+                          ))}
+                          {activityLogs.length === 0 && <p className="text-gray-500 text-sm">Fəaliyyət yoxdur.</p>}
+                      </div>
+                  </div>
+              </div>
+          )}
+
+          {/* CONTENT & FINANCE */}
+          {activeTab === 'content' && (
+              <div className="space-y-8 animate-fade-in">
+                  <h2 className="text-3xl font-bold mb-6">Məzmun və Finans</h2>
+                  
+                  {/* Promo Codes */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-4 border-b border-white/10 pb-2">Promo Kodlar</h3>
+                      <div className="flex gap-4 mb-4">
+                          <button 
+                              onClick={() => {
+                                  const code = prompt("Promo kod adı:");
+                                  const percent = prompt("Endirim faizi (%):");
+                                  if(code && percent && !isNaN(parseInt(percent))) {
+                                      addPromoCode({ id: `promo-${Date.now()}`, code: code.toUpperCase(), discountPercent: parseInt(percent), isActive: true });
+                                  }
+                              }}
+                              className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                          >
+                              <Plus className="w-4 h-4" /> Yeni Promo Kod
+                          </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {promoCodes.map(promo => (
+                              <div key={promo.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-center">
+                                  <div>
+                                      <p className="font-mono font-bold text-lg text-primary">{promo.code}</p>
+                                      <p className="text-xs text-gray-400">Endirim: {promo.discountPercent}%</p>
+                                  </div>
+                                  <button onClick={() => handleDelete('promo', promo.id)} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors">
+                                      <Trash2 className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+
+                  {/* Payment Methods */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-4 border-b border-white/10 pb-2">Ödəniş Metodları</h3>
+                      <div className="flex gap-4 mb-4">
+                          <button 
+                              onClick={() => {
+                                  const name = prompt("Metod adı (Məs: M10):");
+                                  const details = prompt("Hesab nömrəsi:");
+                                  const instructions = prompt("Təlimat:");
+                                  if(name && details) {
+                                      addPaymentMethod({ id: `pm-${Date.now()}`, name, details, instructions: instructions || '', isActive: true });
+                                  }
+                              }}
+                              className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                          >
+                              <Plus className="w-4 h-4" /> Yeni Metod
+                          </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {paymentMethods.map(pm => (
+                              <div key={pm.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-center">
+                                  <div>
+                                      <p className="font-bold text-white">{pm.name}</p>
+                                      <p className="font-mono text-sm text-gray-400">{pm.details}</p>
+                                      <p className="text-xs text-gray-500 mt-1">{pm.instructions}</p>
+                                  </div>
+                                  <button onClick={() => handleDelete('payment', pm.id)} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors">
+                                      <Trash2 className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+
+                  {/* Blogs / News */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-xl font-bold mb-4 border-b border-white/10 pb-2">Xəbərlər & Bloq</h3>
+                      <div className="flex gap-4 mb-4">
+                          <button 
+                              onClick={() => {
+                                  const title = prompt("Başlıq:");
+                                  const content = prompt("Məzmun:");
+                                  const image = prompt("Şəkil URL:");
+                                  if(title && content) {
+                                      addBlog({ id: `blog-${Date.now()}`, title, content, image: image || '', date: new Date().toISOString(), author: 'Admin' });
+                                  }
+                              }}
+                              className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                          >
+                              <Plus className="w-4 h-4" /> Yeni Xəbər
+                          </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {blogs.map(blog => (
+                              <div key={blog.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex gap-4 items-center">
+                                  {blog.image && <img src={blog.image} className="w-16 h-16 rounded-lg object-cover" />}
+                                  <div className="flex-1">
+                                      <p className="font-bold text-white line-clamp-1">{blog.title}</p>
+                                      <p className="text-xs text-gray-500">{new Date(blog.date).toLocaleDateString()}</p>
+                                  </div>
+                                  <button onClick={() => handleDelete('blog', blog.id)} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors">
+                                      <Trash2 className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              </div>
+          )}
+
+          {/* USERS */}
+          {activeTab === 'users' && (
+              <div className="space-y-6 animate-fade-in">
+                  <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-3xl font-bold">İstifadəçilər</h2>
+                      <div className="relative">
+                          <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                          <input 
+                              type="text" 
+                              placeholder="İstifadəçi axtar..." 
+                              className="bg-surfaceHighlight border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:border-primary outline-none"
+                              value={userSearch}
+                              onChange={(e) => setUserSearch(e.target.value)}
+                          />
+                      </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
+                      <div className="overflow-x-auto">
+                          <table className="w-full text-left text-sm text-gray-400">
+                              <thead className="text-xs uppercase bg-white/5 text-gray-300">
+                                  <tr>
+                                      <th className="p-4">İstifadəçi</th>
+                                      <th className="p-4">Email</th>
+                                      <th className="p-4">Balans</th>
+                                      <th className="p-4">Rol</th>
+                                      <th className="p-4">Status</th>
+                                      <th className="p-4 text-right">Əməliyyat</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {usersList.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
+                                      <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                          <td className="p-4 flex items-center gap-3">
+                                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold">
+                                                  {u.avatar ? <img src={u.avatar} className="w-full h-full rounded-full object-cover" /> : u.name.charAt(0).toUpperCase()}
+                                              </div>
+                                              <span className="font-bold text-white">{u.name}</span>
+                                          </td>
+                                          <td className="p-4">{u.email}</td>
+                                          <td className="p-4 font-mono text-primary font-bold">{u.balance.toFixed(2)} ₼</td>
+                                          <td className="p-4">
+                                              <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                                                  {u.role}
+                                              </span>
+                                          </td>
+                                          <td className="p-4">
+                                              <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${u.isBanned ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+                                                  {u.isBanned ? 'Banlı' : 'Aktiv'}
+                                              </span>
+                                          </td>
+                                          <td className="p-4 text-right flex justify-end gap-2">
+                                              <button 
+                                                  onClick={() => {
+                                                      const amount = prompt("Yeni balansı daxil edin:", u.balance.toString());
+                                                      if(amount !== null && !isNaN(parseFloat(amount))) {
+                                                          updateUserBalance(u.id, parseFloat(amount));
+                                                      }
+                                                  }}
+                                                  className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg transition-colors"
+                                                  title="Balansı Dəyiş"
+                                              >
+                                                  <Wallet className="w-4 h-4" />
+                                              </button>
+                                              <button 
+                                                  onClick={() => toggleUserBan(u.id)}
+                                                  className={`p-2 rounded-lg transition-colors ${u.isBanned ? 'bg-green-500/10 text-green-400 hover:bg-green-500 hover:text-white' : 'bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white'}`}
+                                                  title={u.isBanned ? 'Banı Qaldır' : 'Ban Et'}
+                                              >
+                                                  <Shield className="w-4 h-4" />
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          )}
+
           {/* ORDERS */}
           {activeTab === 'orders' && (
               <div className="space-y-6 animate-fade-in">

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../store';
 import { Product } from '../types';
-import { ArrowLeft, CheckCircle, ShieldCheck, ShoppingCart, Heart, Star, MessageSquare, Send, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ShieldCheck, ShoppingCart, Heart, Star, MessageSquare, Send, Zap, Share2, Clock, CreditCard } from 'lucide-react';
+import ProductCard from '../components/ProductCard';
 
 const ProductView = () => {
   const { id } = useParams<{ id: string }>();
@@ -99,12 +100,25 @@ const ProductView = () => {
             <div className="flex flex-col justify-center">
                 <div className="flex justify-between items-start mb-4">
                     <h1 className="text-4xl font-bold text-white leading-tight">{product.title}</h1>
-                    <button 
-                        onClick={handleWishlist}
-                        className={`p-3 rounded-full border transition-all ${isLiked ? 'bg-red-500 text-white border-red-500' : 'glass border-white/10 text-gray-400 hover:text-white'}`}
-                    >
-                        <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
-                    </button>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                alert("Link kopyalandı!");
+                            }}
+                            className="p-3 rounded-full glass border-white/10 text-gray-400 hover:text-white transition-all"
+                            title="Paylaş"
+                        >
+                            <Share2 className="w-6 h-6" />
+                        </button>
+                        <button 
+                            onClick={handleWishlist}
+                            className={`p-3 rounded-full border transition-all ${isLiked ? 'bg-red-500 text-white border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'glass border-white/10 text-gray-400 hover:text-white'}`}
+                            title="İstək Siyahısına Əlavə Et"
+                        >
+                            <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-4 mb-8">
@@ -129,6 +143,27 @@ const ProductView = () => {
                              <span className="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded font-bold">-{product.discountPercent}%</span>
                         </div>
                     )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold text-sm">Anında Təslimat</p>
+                            <p className="text-xs text-gray-500">7/24 Avtomatik</p>
+                        </div>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                            <CreditCard className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold text-sm">Təhlükəsiz Ödəniş</p>
+                            <p className="text-xs text-gray-500">256-bit SSL</p>
+                        </div>
+                    </div>
                 </div>
 
                 {product.requiresInput && (
@@ -242,6 +277,25 @@ const ProductView = () => {
                          )}
                      </div>
                  )}
+            </div>
+        </div>
+
+        {/* Related Products */}
+        <div className="mt-16">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-1 bg-primary h-6 rounded-full"></div>
+                <h2 className="text-2xl font-bold text-white uppercase italic tracking-wider">Oxşar Məhsullar</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {products
+                    .filter(p => p.categoryId === product.categoryId && p.id !== product.id)
+                    .slice(0, 4)
+                    .map(relatedProduct => (
+                        <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                    ))}
+                {products.filter(p => p.categoryId === product.categoryId && p.id !== product.id).length === 0 && (
+                    <p className="text-gray-500 col-span-full">Oxşar məhsul tapılmadı.</p>
+                )}
             </div>
         </div>
 

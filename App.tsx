@@ -38,7 +38,7 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
     <div className="flex flex-col min-h-screen">
       {!isAdminPage && !isAuthPage && <Navbar />}
       
-      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-[110px] md:pt-24 pb-[90px] md:pb-0' : ''}`}>
+      <main className={`flex-grow relative ${!isAdminPage && !isAuthPage ? 'pt-[130px] md:pt-[160px] pb-[90px] md:pb-0' : ''}`}>
         {children}
       </main>
       
