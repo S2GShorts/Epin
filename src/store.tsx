@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product, Order, PaymentMethod, User, OrderStatus, ProductType, Category, SiteSettings, Blog, Agreement, Comment, CartItem, PromoCode, Notification, StockCode, ActivityLog, HeroSlide, Page } from './types';
+import { INITIAL_PRODUCTS, INITIAL_PAYMENT_METHODS, MOCK_USERS, INITIAL_CATEGORIES, INITIAL_SETTINGS, MOCK_PROMO_CODES, INITIAL_HERO_SLIDES } from './constants';
 
 interface AppContextType {
   user: User | null; 
@@ -27,17 +28,17 @@ interface AppContextType {
   closeCart: () => void;
   
   // Auth
-  login: (email: string, pass: string) => Promise<boolean>;
-  register: (name: string, email: string, phone: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => boolean;
+  register: (name: string, email: string, phone: string, pass: string) => void;
   logout: () => void;
-  updateUserProfile: (data: Partial<User>) => Promise<void>;
-  changePassword: (currentPass: string, newPass: string) => Promise<boolean>;
-  requestPasswordReset: (phone: string) => Promise<boolean>;
-  adminUpdateUserPassword: (userId: string, newPass: string) => Promise<void>;
-  toggleUserBan: (userId: string) => Promise<void>;
+  updateUserProfile: (data: Partial<User>) => void;
+  changePassword: (currentPass: string, newPass: string) => boolean;
+  requestPasswordReset: (phone: string) => boolean;
+  adminUpdateUserPassword: (userId: string, newPass: string) => void;
+  toggleUserBan: (userId: string) => void;
   generateResetLink: (userId: string) => string;
-  confirmPasswordReset: (token: string, newPass: string) => Promise<boolean>;
-  toggleWishlist: (productId: string) => Promise<void>; 
+  confirmPasswordReset: (token: string, newPass: string) => boolean;
+  toggleWishlist: (productId: string) => void; 
 
   // Cart
   addToCart: (product: Product, userInput?: string) => void;
@@ -48,222 +49,317 @@ interface AppContextType {
   // Order Actions
   placeOrder: (paymentMethodId: string | 'BALANCE', receiptFile?: File, promoDiscount?: number) => Promise<boolean>;
   placeBalanceOrder: (amount: number, paymentMethodId: string, receiptFile: File) => Promise<boolean>;
-  processOrder: (orderId: string) => Promise<void>;
-  completeOrder: (orderId: string, manualContent?: string) => Promise<void>; 
-  cancelOrder: (orderId: string) => Promise<void>;
+  processOrder: (orderId: string) => void;
+  completeOrder: (orderId: string, manualContent?: string) => void; 
+  cancelOrder: (orderId: string) => void;
   
   // Notification Actions
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
   
   // Admin CMS & Stock
-  addProduct: (product: Product) => Promise<void>;
-  addProducts: (newProducts: Product[]) => Promise<void>;
-  deleteProduct: (productId: string) => Promise<void>;
-  togglePopularProduct: (productId: string) => Promise<void>;
+  addProduct: (product: Product) => void;
+  addProducts: (newProducts: Product[]) => void;
+  deleteProduct: (productId: string) => void;
+  togglePopularProduct: (productId: string) => void;
   
-  addCategory: (category: Category) => Promise<void>;
-  deleteCategory: (categoryId: string) => Promise<void>;
-  togglePopularCategory: (categoryId: string) => Promise<void>;
+  addCategory: (category: Category) => void;
+  deleteCategory: (categoryId: string) => void;
+  togglePopularCategory: (categoryId: string) => void;
 
-  updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
-  updateUserBalance: (userId: string, amount: number) => Promise<void>;
-  addPaymentMethod: (method: PaymentMethod) => Promise<void>;
-  updatePaymentMethod: (id: string, details: Partial<PaymentMethod>) => Promise<void>;
-  deletePaymentMethod: (id: string) => Promise<void>;
-  addPromoCode: (promo: PromoCode) => Promise<void>;
-  deletePromoCode: (id: string) => Promise<void>;
-  togglePromoCode: (id: string) => Promise<void>;
+  updateSiteSettings: (settings: Partial<SiteSettings>) => void;
+  updateUserBalance: (amount: number) => void;
+  addPaymentMethod: (method: PaymentMethod) => void;
+  updatePaymentMethod: (id: string, details: Partial<PaymentMethod>) => void;
+  deletePaymentMethod: (id: string) => void;
+  addPromoCode: (promo: PromoCode) => void;
+  deletePromoCode: (id: string) => void;
+  togglePromoCode: (id: string) => void;
   
   // Hero Slides
-  addHeroSlide: (slide: HeroSlide) => Promise<void>;
-  deleteHeroSlide: (id: string) => Promise<void>;
+  addHeroSlide: (slide: HeroSlide) => void;
+  deleteHeroSlide: (id: string) => void;
 
   // Stock Logic
-  addStock: (productId: string, codes: string[]) => Promise<void>;
-  deleteStock: (stockId: string) => Promise<void>;
+  addStock: (productId: string, codes: string[], accountDetails?: Partial<StockCode>) => void;
+  deleteStock: (stockId: string) => void;
   
   // CMS
-  addBlog: (blog: Blog) => Promise<void>;
-  deleteBlog: (id: string) => Promise<void>;
-  addAgreement: (agreement: Agreement) => Promise<void>;
-  deleteAgreement: (id: string) => Promise<void>;
+  addBlog: (blog: Blog) => void;
+  deleteBlog: (id: string) => void;
+  addAgreement: (agreement: Agreement) => void;
+  deleteAgreement: (id: string) => void;
   
   // Pages Logic
-  addPage: (page: Page) => Promise<void>;
-  updatePage: (id: string, page: Partial<Page>) => Promise<void>;
-  deletePage: (id: string) => Promise<void>;
+  addPage: (page: Page) => void;
+  updatePage: (id: string, page: Partial<Page>) => void;
+  deletePage: (id: string) => void;
 
-  addComment: (comment: Omit<Comment, 'id' | 'date' | 'isApproved'>) => Promise<void>;
-  toggleCommentApproval: (id: string) => Promise<void>;
-  deleteComment: (id: string) => Promise<void>;
+  addComment: (comment: Omit<Comment, 'id' | 'date' | 'isApproved'>) => void;
+  toggleCommentApproval: (id: string) => void;
+  deleteComment: (id: string) => void;
   
   giveaways: any[];
-  joinGiveaway: (id: string) => Promise<void>;
+  joinGiveaway: (id: string) => void;
   mysteryBoxes: any[];
   openMysteryBox: (id: string) => Promise<any>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// PHP Backend API URL (Change this to your actual PHP server URL in production)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost/api';
+// Helper for LocalStorage
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.log(error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (error) {
+      console.log(error);
+    }
+  }, [key, storedValue]);
+
+  return [storedValue, setStoredValue] as const;
+}
 
 export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
   // UI State
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Data State (Fetched from PHP Backend)
-  const [user, setUser] = useState<User | null>(null);
-  const [usersList, setUsersList] = useState<User[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [stocks, setStocks] = useState<StockCode[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ siteName: 'GamePay', currency: 'AZN', contactEmail: '', whatsappNumber: '', footerText: '' });
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [agreements, setAgreements] = useState<Agreement[]>([]);
-  const [pages, setPages] = useState<Page[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
+  // Data State (LocalStorage)
+  const [user, setUser] = useLocalStorage<User | null>('app_user', null);
+  const [usersList, setUsersList] = useLocalStorage<User[]>('app_usersList', MOCK_USERS);
+  const [orders, setOrders] = useLocalStorage<Order[]>('app_orders', []);
+  const [cart, setCart] = useLocalStorage<CartItem[]>('app_cart', []);
+  const [stocks, setStocks] = useLocalStorage<StockCode[]>('app_stocks', []);
+  
+  const [products, setProducts] = useLocalStorage<Product[]>('app_products', INITIAL_PRODUCTS);
+  const [categories, setCategories] = useLocalStorage<Category[]>('app_categories', INITIAL_CATEGORIES);
+  const [heroSlides, setHeroSlides] = useLocalStorage<HeroSlide[]>('app_heroSlides', INITIAL_HERO_SLIDES);
+  const [paymentMethods, setPaymentMethods] = useLocalStorage<PaymentMethod[]>('app_paymentMethods', INITIAL_PAYMENT_METHODS);
+  const [promoCodes, setPromoCodes] = useLocalStorage<PromoCode[]>('app_promoCodes', MOCK_PROMO_CODES);
+  const [siteSettings, setSiteSettings] = useLocalStorage<SiteSettings>('app_siteSettings', INITIAL_SETTINGS);
+  const [notifications, setNotifications] = useLocalStorage<Notification[]>('app_notifications', []);
+  const [activityLogs, setActivityLogs] = useLocalStorage<ActivityLog[]>('app_activityLogs', []);
+  
+  // CMS State
+  const [blogs, setBlogs] = useLocalStorage<Blog[]>('app_blogs', [
+    { id: 'b1', title: 'GPT-4o Artıq Aktivdir!', content: 'OpenAI-ın ən yeni modeli artıq platformamızda mövcuddur.', date: new Date().toISOString(), image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995' }
+  ]);
+  const [agreements, setAgreements] = useLocalStorage<Agreement[]>('app_agreements', [
+    { id: 'a1', title: 'İstifadəçi Razılaşması', content: 'Saytımızdan istifadə edərkən...' },
+    { id: 'a2', title: 'Zəmanət Şərtləri', content: 'Bütün məhsullara rəsmi zəmanət verilir...' }
+  ]);
+  
+  const [pages, setPages] = useLocalStorage<Page[]>('app_pages', [
+      { id: 'pg1', title: 'Haqqımızda', slug: 'haqqimizda', content: 'GamePay Azərbaycanın ən böyük rəqəmsal oyun platformasıdır...', category: 'corporate', isActive: true },
+      { id: 'pg2', title: 'Gizlilik Politikası', slug: 'gizlilik-politikasi', content: 'Sizin məlumatlarınız bizim üçün önəmlidir...', category: 'agreement', isActive: true },
+      { id: 'pg3', title: 'İstifadəçi Sözləşməsi', slug: 'istifadeci-sozlesmesi', content: 'Sayt istifadə qaydaları...', category: 'agreement', isActive: true },
+      { id: 'pg4', title: 'İptal & İade Koşulları', slug: 'iptal-iade-kosullari', content: 'Rəqəmsal məhsulların geri qaytarılması...', category: 'agreement', isActive: true },
+  ]);
 
-  // --- API HELPER ---
-  const apiCall = async (endpoint: string, method: string = 'GET', body?: any) => {
-    const token = localStorage.getItem('token'); // Only storing JWT token in localStorage
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+  const [comments, setComments] = useLocalStorage<Comment[]>('app_comments', [
+    { id: 'c1', author: 'Sənan Q.', content: 'Canva Pro ömürlük aldım, dərhal aktivləşdi. Əla!', type: 'product', targetId: 'p2', isApproved: true, date: new Date().toISOString(), rating: 5 },
+    { id: 'c2', author: 'Elvin M.', content: 'PUBG UC anında gəldi, təşəkkürlər.', type: 'site', isApproved: true, date: new Date().toISOString(), rating: 5 },
+    { id: 'c3', author: 'Aysel K.', content: 'Ən ucuz qiymətlər burdadır.', type: 'site', isApproved: true, date: new Date().toISOString(), rating: 5 }
+  ]);
 
-    try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined
-      });
-      return await res.json();
-    } catch (error) {
-      console.error(`API Error (${endpoint}):`, error);
-      return { status: 'error', message: 'Serverlə əlaqə qurulmadı.' };
-    }
-  };
-
-  // --- INITIAL DATA FETCH ---
   useEffect(() => {
-    const fetchInitialData = async () => {
-      // Fetch public data
-      const prodRes = await apiCall('/products');
-      if (prodRes.status === 'success') setProducts(prodRes.data || []);
-      
-      const catRes = await apiCall('/categories');
-      if (catRes.status === 'success') setCategories(catRes.data || []);
+    setProducts(prev => prev.map(p => ({
+        ...p,
+        stockCount: stocks.filter(s => s.productId === p.id && !s.isUsed).length
+    })));
+  }, [stocks]);
 
-      const settingsRes = await apiCall('/settings');
-      if (settingsRes.status === 'success') setSiteSettings(settingsRes.data || siteSettings);
-
-      const pagesRes = await apiCall('/pages');
-      if (pagesRes.status === 'success') setPages(pagesRes.data || []);
-
-      // Check auth and fetch user data
-      const token = localStorage.getItem('token');
-      if (token) {
-        const userRes = await apiCall('/user/me');
-        if (userRes.status === 'success') {
-            setUser(userRes.data);
-            // If admin, fetch admin data
-            if (userRes.data.role === 'admin') {
-                const adminData = await apiCall('/admin/dashboard');
-                if (adminData.status === 'success') {
-                    setUsersList(adminData.users || []);
-                    setOrders(adminData.orders || []);
-                    setStocks(adminData.stocks || []);
-                }
-            } else {
-                // Fetch user specific orders
-                const myOrders = await apiCall('/user/orders');
-                if (myOrders.status === 'success') setOrders(myOrders.data || []);
-            }
-        } else {
-            localStorage.removeItem('token'); // Invalid token
-        }
-      }
-    };
-    fetchInitialData();
-  }, []);
-
-  // --- UI ACTIONS ---
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
-  // --- AUTH ACTIONS ---
-  const login = async (email: string, pass: string) => {
-    const res = await apiCall('/login', 'POST', { email, password: pass });
-    if (res.status === 'success') {
-      localStorage.setItem('token', res.token);
-      setUser(res.user);
-      
-      // Fetch user specific data after login
-      if (res.user.role === 'admin') {
-          const adminData = await apiCall('/admin/dashboard');
-          if (adminData.status === 'success') {
-              setUsersList(adminData.users || []);
-              setOrders(adminData.orders || []);
-          }
+  const logActivity = (action: string, details: string, type: ActivityLog['type'] = 'info') => {
+      const newLog: ActivityLog = {
+          id: `log-${Date.now()}`,
+          adminName: user?.name || 'System',
+          action,
+          details,
+          date: new Date().toISOString(),
+          type
+      };
+      setActivityLogs(prev => [newLog, ...prev]);
+  };
+
+  const sendNotification = (userId: string, title: string, message: string, type: 'success' | 'info' | 'warning' | 'error') => {
+      const newNotif: Notification = {
+          id: `notif-${Date.now()}-${Math.random()}`,
+          userId,
+          title,
+          message,
+          type,
+          date: new Date().toISOString(),
+          isRead: false
+      };
+      setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  const markNotificationRead = (id: string) => {
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const clearNotifications = () => {
+      if(user) {
+          setNotifications(prev => prev.filter(n => n.userId !== user.id));
       }
+  };
+
+  const login = (email: string, pass: string) => {
+    const foundUser = usersList.find(u => u.email === email && u.password === pass);
+    if (foundUser) {
+      if (foundUser.isBanned) {
+        alert("Hesabınız bloklanıb. Zəhmət olmasa dəstək xidməti ilə əlaqə saxlayın.");
+        return false;
+      }
+      setUser(foundUser);
+      logActivity('User Login', `${foundUser.email} daxil oldu.`);
       return true;
     }
-    alert(res.message || "Giriş xətası");
     return false;
   };
 
-  const register = async (name: string, email: string, phone: string, pass: string) => {
-    const res = await apiCall('/register', 'POST', { name, email, phone, password: pass });
-    if (res.status === 'success') {
-      alert("Qeydiyyat uğurla tamamlandı! İndi daxil ola bilərsiniz.");
-    } else {
-      alert(res.message || "Qeydiyyat xətası");
+  const register = (name: string, email: string, phone: string, pass: string) => {
+    const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const newUser: User = {
+      id: `u-${Date.now()}`,
+      name,
+      email,
+      phone,
+      role: 'user',
+      balance: 0,
+      password: pass,
+      isBanned: false,
+      wishlist: [],
+      referralCode: referralCode,
+      referralEarnings: 0,
+      referralCount: 0
+    };
+    setUsersList(prev => [...prev, newUser]);
+    setUser(newUser);
+    sendNotification(newUser.id, 'Xoş Gəldiniz!', 'Platformamıza xoş gəldiniz. Uğurlu alış-verişlər!', 'success');
+    logActivity('New Register', `${email} qeydiyyatdan keçdi.`, 'success');
+  };
+
+  const updateUserProfile = (data: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...data };
+    setUser(updatedUser);
+    setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+    logActivity('Profile Update', `${user.email} profilini yenilədi.`);
+  };
+
+  const changePassword = (currentPass: string, newPass: string) => {
+      if(!user) return false;
+      if(user.password !== currentPass) return false;
+      
+      const updatedUser = { ...user, password: newPass };
+      setUser(updatedUser);
+      setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+      logActivity('Password Change', `${user.email} şifrəsini dəyişdi.`);
+      return true;
+  };
+
+  const requestPasswordReset = (phone: string) => {
+    const exists = usersList.find(u => u.phone === phone);
+    if (exists) {
+      setUsersList(prev => prev.map(u => u.phone === phone ? { ...u, resetRequested: true } : u));
+      return true; 
     }
+    return false;
+  };
+
+  const generateResetLink = (userId: string) => {
+      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      setUsersList(prev => prev.map(u => u.id === userId ? { ...u, resetToken: token } : u));
+      return `${window.location.origin}/#/auth?token=${token}`;
+  };
+
+  const confirmPasswordReset = (token: string, newPass: string) => {
+      const userWithToken = usersList.find(u => u.resetToken === token);
+      if(!userWithToken) return false;
+
+      setUsersList(prev => prev.map(u => u.id === userWithToken.id ? { 
+          ...u, 
+          password: newPass, 
+          resetToken: undefined, // Clear token
+          resetRequested: false // Clear flag
+      } : u));
+      logActivity('Password Reset', `${userWithToken.email} şifrəsini token ilə yenilədi.`, 'warning');
+      return true;
+  };
+
+  const adminUpdateUserPassword = (userId: string, newPass: string) => {
+    const targetUser = usersList.find(u => u.id === userId);
+    setUsersList(prev => prev.map(u => u.id === userId ? { ...u, password: newPass, resetRequested: false } : u));
+    logActivity('Admin Password Change', `Admin ${targetUser?.email} istifadəçisinin şifrəsini dəyişdi.`, 'warning');
+  };
+
+  const toggleUserBan = (userId: string) => {
+    const targetUser = usersList.find(u => u.id === userId);
+    setUsersList(prev => prev.map(u => u.id === userId ? { ...u, isBanned: !u.isBanned } : u));
+    logActivity('User Ban/Unban', `Admin ${targetUser?.email} statusunu dəyişdi.`, 'warning');
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
     setUser(null);
     setCart([]);
-    setOrders([]);
   };
 
-  const updateUserProfile = async (data: Partial<User>) => {
-      const res = await apiCall('/user/update', 'POST', data);
-      if (res.status === 'success') setUser(res.data);
+  const updateUserBalance = (amount: number) => {
+    if(user) {
+        const newBalance = user.balance + amount;
+        const updatedUser = { ...user, balance: newBalance };
+        setUser(updatedUser);
+        setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+        logActivity('Balance Update', `${user.email} balansı ${amount > 0 ? '+' : ''}${amount} AZN dəyişdi.`);
+    }
+  };
+  
+  const toggleWishlist = (productId: string) => {
+      if(!user) return;
+      const currentWishlist = user.wishlist || [];
+      let newWishlist;
+      if(currentWishlist.includes(productId)) {
+          newWishlist = currentWishlist.filter(id => id !== productId);
+      } else {
+          newWishlist = [...currentWishlist, productId];
+      }
+      const updatedUser = { ...user, wishlist: newWishlist };
+      setUser(updatedUser);
+      setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
   };
 
-  const changePassword = async (currentPass: string, newPass: string) => {
-      const res = await apiCall('/user/password', 'POST', { currentPass, newPass });
-      return res.status === 'success';
+  const addStock = (productId: string, codes: string[], accountDetails?: Partial<StockCode>) => {
+      const newStocks = codes.map(code => ({
+          id: `stock-${Date.now()}-${Math.random()}`,
+          productId,
+          code,
+          isUsed: false,
+          dateAdded: new Date().toISOString(),
+          ...accountDetails
+      }));
+      setStocks(prev => [...prev, ...newStocks]);
+      logActivity('Stock Added', `${codes.length} ədəd kod/hesab əlavə olundu.`);
   };
 
-  const requestPasswordReset = async (phone: string) => {
-      const res = await apiCall('/password/reset-request', 'POST', { phone });
-      return res.status === 'success';
+  const deleteStock = (stockId: string) => {
+      setStocks(prev => prev.filter(s => s.id !== stockId));
+      logActivity('Stock Deleted', `Stok ID ${stockId} silindi.`, 'warning');
   };
 
-  const confirmPasswordReset = async (token: string, newPass: string) => {
-      const res = await apiCall('/password/reset-confirm', 'POST', { token, newPass });
-      return res.status === 'success';
-  };
-
-  const generateResetLink = (userId: string) => { return ""; };
-  const adminUpdateUserPassword = async (userId: string, newPass: string) => {};
-  const toggleUserBan = async (userId: string) => {};
-  const toggleWishlist = async (productId: string) => {};
-
-  // --- CART ACTIONS (Local State) ---
   const addToCart = (product: Product, userInput?: string) => {
     const finalPrice = product.price - (product.price * (product.discountPercent / 100));
     setCart(prev => {
@@ -286,109 +382,312 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
             }];
         }
     });
+    // Open cart automatically on add
     setIsCartOpen(true);
   };
 
   const updateCartQuantity = (index: number, delta: number) => {
       setCart(prev => {
           const newCart = [...prev];
-          newCart[index].quantity += delta;
-          if (newCart[index].quantity <= 0) return prev.filter((_, i) => i !== index);
+          const item = newCart[index];
+          const newQty = item.quantity + delta;
+          if (newQty <= 0) return prev.filter((_, i) => i !== index);
+          item.quantity = newQty;
           return newCart;
       });
   };
 
-  const removeFromCart = (index: number) => setCart(prev => prev.filter((_, i) => i !== index));
-  const clearCart = () => setCart([]);
-
-  // --- ORDER ACTIONS ---
-  const placeOrder = async (paymentMethodId: string | 'BALANCE', receiptFile?: File, promoDiscount: number = 0) => {
-    if (!user || cart.length === 0) return false;
-    
-    if (paymentMethodId === 'BALANCE') {
-        const res = await apiCall('/order/create', 'POST', { cartItems: cart, paymentMethod: 'WALLET' });
-        if (res.status === 'success') {
-            alert("Sifariş uğurla tamamlandı!");
-            clearCart();
-            // Refresh user balance
-            const userRes = await apiCall('/user/me');
-            if (userRes.status === 'success') setUser(userRes.data);
-            
-            // Refresh orders
-            const myOrders = await apiCall('/user/orders');
-            if (myOrders.status === 'success') setOrders(myOrders.data || []);
-            
-            return true;
-        } else {
-            alert(res.message || "Sifariş xətası");
-            return false;
-        }
-    } else {
-        // Handle manual payment with receipt upload
-        const formData = new FormData();
-        formData.append('paymentMethodId', paymentMethodId);
-        formData.append('cartItems', JSON.stringify(cart));
-        if (receiptFile) formData.append('receipt', receiptFile);
-        
-        const token = localStorage.getItem('token');
-        try {
-            const res = await fetch(`${API_URL}/order/manual`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert("Sifarişiniz yoxlanışa göndərildi.");
-                clearCart();
-                return true;
-            }
-        } catch (e) {
-            alert("Xəta baş verdi.");
-        }
-        return false;
-    }
+  const removeFromCart = (index: number) => {
+    setCart(prev => prev.filter((_, i) => i !== index));
   };
 
-  const placeBalanceOrder = async (amount: number, paymentMethodId: string, receiptFile: File) => { return false; };
-  const processOrder = async (orderId: string) => {};
-  const completeOrder = async (orderId: string, manualContent?: string) => {};
-  const cancelOrder = async (orderId: string) => {};
-  const updateUserBalance = async (userId: string, amount: number) => {};
+  const clearCart = () => setCart([]);
 
-  // --- NOTIFICATIONS ---
-  const markNotificationRead = (id: string) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-  const clearNotifications = () => setNotifications([]);
+  const placeOrder = async (paymentMethodId: string | 'BALANCE', receiptFile?: File, promoDiscount: number = 0): Promise<boolean> => {
+    if (!user || cart.length === 0) return false;
+    const subTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const totalPrice = subTotal - promoDiscount;
 
-  // --- ADMIN ACTIONS (Stubs for PHP Backend) ---
-  const addProduct = async (product: Product) => {};
-  const addProducts = async (newProducts: Product[]) => {};
-  const deleteProduct = async (productId: string) => {};
-  const togglePopularProduct = async (productId: string) => {};
-  const addCategory = async (category: Category) => {};
-  const deleteCategory = async (categoryId: string) => {};
-  const togglePopularCategory = async (categoryId: string) => {};
-  const updateSiteSettings = async (settings: Partial<SiteSettings>) => {};
-  const addPaymentMethod = async (method: PaymentMethod) => {};
-  const updatePaymentMethod = async (id: string, details: Partial<PaymentMethod>) => {};
-  const deletePaymentMethod = async (id: string) => {};
-  const addPromoCode = async (promo: PromoCode) => {};
-  const deletePromoCode = async (id: string) => {};
-  const togglePromoCode = async (id: string) => {};
-  const addHeroSlide = async (slide: HeroSlide) => {};
-  const deleteHeroSlide = async (id: string) => {};
-  const addStock = async (productId: string, codes: string[]) => {};
-  const deleteStock = async (stockId: string) => {};
-  const addBlog = async (blog: Blog) => {};
-  const deleteBlog = async (id: string) => {};
-  const addAgreement = async (agreement: Agreement) => {};
-  const deleteAgreement = async (id: string) => {};
-  const addPage = async (page: Page) => {};
-  const updatePage = async (id: string, page: Partial<Page>) => {};
-  const deletePage = async (id: string) => {};
-  const addComment = async (comment: Omit<Comment, 'id' | 'date' | 'isApproved'>) => {};
-  const toggleCommentApproval = async (id: string) => {};
-  const deleteComment = async (id: string) => {};
+    if (paymentMethodId === 'BALANCE') {
+        if (user.balance < totalPrice) {
+            alert("Balansınızda kifayət qədər vəsait yoxdur.");
+            return false;
+        }
+        
+        const newBalance = user.balance - totalPrice;
+        const updatedUser = { ...user, balance: newBalance };
+        setUser(updatedUser);
+        setUsersList(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+
+        const orderId = `ord-${Date.now()}`;
+        let autoDeliveredContent = "";
+        let isFullyDelivered = true;
+        const updatedStocks = [...stocks];
+        let maxDuration = 0;
+        let isOrderLifetime = false;
+        const deliveredAccountDetails: Partial<StockCode>[] = [];
+
+        cart.forEach(item => {
+            if (item.isLifetime) {
+                isOrderLifetime = true;
+            } else if (item.durationDays && item.durationDays > maxDuration) {
+                maxDuration = item.durationDays;
+            }
+
+            if (item.type === ProductType.LICENSE_KEY || item.type === ProductType.ACCOUNT) {
+                const available = updatedStocks.filter(s => s.productId === item.productId && !s.isUsed);
+                if (available.length >= item.quantity) {
+                     for(let i=0; i<item.quantity; i++) {
+                         const stock = available[i];
+                         stock.isUsed = true;
+                         
+                         if (stock.email && stock.password) {
+                             deliveredAccountDetails.push(stock);
+                             autoDeliveredContent += `${item.title}: Hesab Təfərrüatları (Abunəliklərim bölməsinə baxın)\n`;
+                         } else {
+                             autoDeliveredContent += `${item.title}: ${stock.code}\n`;
+                         }
+                         
+                         const sIndex = updatedStocks.findIndex(s => s.id === stock.id);
+                         updatedStocks[sIndex].isUsed = true;
+                     }
+                } else {
+                    isFullyDelivered = false;
+                    autoDeliveredContent += `${item.title}: (Stok bitib, Admin göndərəcək)\n`;
+                }
+            } else {
+                 isFullyDelivered = false; 
+                 autoDeliveredContent += `${item.title}: (Yükləmə Gözlənilir)\n`;
+            }
+        });
+        
+        setStocks(updatedStocks);
+        const finalStatus = isFullyDelivered ? OrderStatus.COMPLETED : OrderStatus.PROCESSING;
+
+        let expiryDate;
+        if (!isOrderLifetime && maxDuration > 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + maxDuration);
+            expiryDate = d.toISOString();
+        } 
+        
+        const newOrder: Order = {
+            id: orderId,
+            userId: user.id,
+            items: [...cart],
+            totalPrice: totalPrice,
+            discountApplied: promoDiscount,
+            status: finalStatus,
+            date: new Date().toISOString(),
+            paymentMethodName: 'Wallet Balance',
+            deliveredContent: autoDeliveredContent,
+            deliveredAccountDetails: deliveredAccountDetails.length > 0 ? deliveredAccountDetails : undefined,
+            productTitle: cart.length > 1 ? `${cart.length} Məhsul` : cart[0].title,
+            productId: 'cart-checkout',
+            price: totalPrice,
+            productType: ProductType.LICENSE_KEY,
+            expiryDate: expiryDate
+        };
+        
+        setOrders(prev => [newOrder, ...prev]);
+        clearCart();
+        sendNotification(user.id, "Sifariş Qəbul Edildi", `Sifarişiniz (#${newOrder.id.slice(-6)}) ${isFullyDelivered ? 'tamamlandı' : 'emal olunur'}.`, 'success');
+        logActivity('Order Placed', `Order #${orderId} (Balance) - ${totalPrice} AZN`);
+        return true;
+    }
+
+    const method = paymentMethods.find(p => p.id === paymentMethodId);
+    if (!method || !receiptFile) return false;
+    const receiptUrl = URL.createObjectURL(receiptFile);
+
+    const newOrder: Order = {
+      id: `ord-${Date.now()}`,
+      userId: user.id,
+      items: [...cart],
+      totalPrice: totalPrice,
+      discountApplied: promoDiscount,
+      status: OrderStatus.PENDING,
+      date: new Date().toISOString(),
+      paymentMethodName: method.name,
+      receiptImage: receiptUrl,
+      productTitle: cart.length > 1 ? `${cart.length} Məhsul` : cart[0].title,
+      productId: 'cart-checkout',
+      price: totalPrice,
+      productType: ProductType.LICENSE_KEY
+    };
+
+    setOrders(prev => [newOrder, ...prev]);
+    clearCart();
+    sendNotification(user.id, "Sifariş Gözləmədə", `Sifarişiniz (#${newOrder.id.slice(-6)}) yoxlanışa göndərildi.`, 'info');
+    logActivity('Order Placed', `Order #${newOrder.id} (Manual) - ${totalPrice} AZN`);
+    return true;
+  };
+
+  const placeBalanceOrder = async (amount: number, paymentMethodId: string, receiptFile: File): Promise<boolean> => {
+    if (!user) return false;
+    const method = paymentMethods.find(p => p.id === paymentMethodId);
+    if (!method) return false;
+    const receiptUrl = URL.createObjectURL(receiptFile);
+
+    const newOrder: Order = {
+      id: `bal-${Date.now()}`,
+      userId: user.id,
+      items: [{
+        productId: 'balance-topup',
+        title: 'Balans Artımı',
+        price: amount,
+        image: 'https://via.placeholder.com/150',
+        type: ProductType.BALANCE,
+        quantity: 1
+      }],
+      totalPrice: amount,
+      status: OrderStatus.PENDING,
+      date: new Date().toISOString(),
+      paymentMethodName: method.name,
+      receiptImage: receiptUrl,
+      productTitle: 'Balans Artımı',
+      productType: ProductType.BALANCE,
+      price: amount
+    };
+
+    setOrders(prev => [newOrder, ...prev]);
+    sendNotification(user.id, "Balans Sorğusu", `${amount} AZN dəyərində balans artım sorğunuz qeydə alındı.`, 'info');
+    logActivity('Balance Request', `User ${user.email} ${amount} AZN artım istədi.`);
+    return true;
+  };
+
+  const processOrder = (orderId: string) => {
+    setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status: OrderStatus.PROCESSING } : order));
+    const order = orders.find(o => o.id === orderId);
+    if(order) sendNotification(order.userId, "Sifariş Emalda", `Sifarişiniz (#${order.id.slice(-6)}) emal olunur.`, 'info');
+    logActivity('Order Processing', `Order #${orderId} emala alındı.`);
+  };
+
+  const completeOrder = (orderId: string, manualContent?: string) => {
+    setOrders(prev => prev.map(order => {
+      if (order.id !== orderId) return order;
+      let finalContent = manualContent || order.deliveredContent || "";
+      let deliveredAccountDetails = order.deliveredAccountDetails || [];
+      
+      if (!manualContent && !order.items.some(i => i.type === ProductType.BALANCE)) {
+           let updatedStocks = [...stocks];
+           let autoGenerated = "";
+           order.items.forEach(item => {
+               if(item.type === ProductType.LICENSE_KEY || item.type === ProductType.ACCOUNT) {
+                   const available = updatedStocks.filter(s => s.productId === item.productId && !s.isUsed);
+                   if (available.length >= item.quantity) {
+                        for(let i=0; i<item.quantity; i++) {
+                             const stock = available[i];
+                             const sIdx = updatedStocks.findIndex(s=>s.id === stock.id);
+                             updatedStocks[sIdx].isUsed = true;
+                             
+                             if (stock.email && stock.password) {
+                                 deliveredAccountDetails.push(stock);
+                                 autoGenerated += `${item.title}: Hesab Təfərrüatları (Abunəliklərim bölməsinə baxın)\n`;
+                             } else {
+                                 autoGenerated += `${item.title}: ${stock.code}\n`;
+                             }
+                        }
+                   }
+               }
+           });
+           if (autoGenerated) {
+               setStocks(updatedStocks);
+               finalContent = autoGenerated;
+           }
+      }
+      sendNotification(order.userId, "Sifariş Tamamlandı!", `Sifarişiniz (#${order.id.slice(-6)}) təsdiqləndi.`, 'success');
+      
+      if (order.items.some(i => i.type === ProductType.BALANCE)) {
+         const targetUser = usersList.find(u => u.id === order.userId);
+         if(targetUser) {
+             const updatedTarget = { ...targetUser, balance: targetUser.balance + order.totalPrice };
+             setUsersList(prev => prev.map(u => u.id === order.userId ? updatedTarget : u));
+             if(user && user.id === order.userId) setUser(updatedTarget);
+         }
+         sendNotification(order.userId, "Balans Artırıldı", `${order.totalPrice} AZN balansınıza əlavə olundu.`, 'success');
+      }
+      
+      let expiryDate = order.expiryDate;
+      if (!expiryDate && order.items.length >= 1) {
+          if (order.items.some(i => i.isLifetime)) {
+              expiryDate = undefined; 
+          } else if (order.items[0].durationDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + order.items[0].durationDays);
+            expiryDate = d.toISOString();
+          }
+      }
+      logActivity('Order Completed', `Order #${orderId} tamamlandı.`, 'success');
+      return { 
+          ...order, 
+          status: OrderStatus.COMPLETED, 
+          deliveredContent: finalContent, 
+          deliveredAccountDetails: deliveredAccountDetails.length > 0 ? deliveredAccountDetails : undefined,
+          expiryDate: expiryDate 
+      };
+    }));
+  };
+
+  const cancelOrder = (orderId: string) => {
+    setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status: OrderStatus.CANCELLED } : order));
+    const order = orders.find(o => o.id === orderId);
+    if(order) {
+        sendNotification(order.userId, "Sifariş Ləğv Edildi", `Sifarişiniz (#${order.id.slice(-6)}) ləğv edildi.`, 'error');
+        if (order.paymentMethodName === 'Wallet Balance') {
+            const targetUser = usersList.find(u => u.id === order.userId);
+            if(targetUser) {
+                 const updatedTarget = { ...targetUser, balance: targetUser.balance + order.totalPrice };
+                 setUsersList(prev => prev.map(u => u.id === order.userId ? updatedTarget : u));
+                 if(user && user.id === order.userId) setUser(updatedTarget);
+            }
+            sendNotification(order.userId, "Refund", `${order.totalPrice} AZN balansınıza qaytarıldı.`, 'success');
+            logActivity('Order Refunded', `Order #${orderId} məbləği geri qaytarıldı.`);
+        }
+    }
+    logActivity('Order Cancelled', `Order #${orderId} ləğv edildi.`, 'error');
+  };
+
+  const addProduct = (product: Product) => { setProducts(prev => [...prev, product]); logActivity('Product Added', product.title); }
+  const addProducts = (newProducts: Product[]) => setProducts(prev => [...prev, ...newProducts]);
+  const deleteProduct = (productId: string) => { setProducts(prev => prev.filter(p => p.id !== productId)); logActivity('Product Deleted', productId); }
+  const togglePopularProduct = (productId: string) => { setProducts(prev => prev.map(p => p.id === productId ? { ...p, isPopular: !p.isPopular } : p)); logActivity('Product Popular Toggled', productId); }
+
+  const addCategory = (category: Category) => { setCategories(prev => [...prev, category]); logActivity('Category Added', category.name); }
+  const deleteCategory = (categoryId: string) => setCategories(prev => prev.filter(c => c.id !== categoryId));
+  const togglePopularCategory = (categoryId: string) => { setCategories(prev => prev.map(c => c.id === categoryId ? { ...c, isPopular: !c.isPopular } : c)); logActivity('Category Popular Toggled', categoryId); }
+
+  const updateSiteSettings = (settings: Partial<SiteSettings>) => { setSiteSettings(prev => ({ ...prev, ...settings })); logActivity('Settings Updated', 'Sayt ayarları dəyişdirildi.'); }
+  const addPaymentMethod = (method: PaymentMethod) => setPaymentMethods(prev => [...prev, method]);
+  const updatePaymentMethod = (id: string, details: Partial<PaymentMethod>) => setPaymentMethods(prev => prev.map(pm => pm.id === id ? { ...pm, ...details } : pm));
+  const deletePaymentMethod = (id: string) => setPaymentMethods(prev => prev.filter(pm => pm.id !== id));
+  const addPromoCode = (promo: PromoCode) => setPromoCodes(prev => [...prev, promo]);
+  const deletePromoCode = (id: string) => setPromoCodes(prev => prev.filter(p => p.id !== id));
+  const togglePromoCode = (id: string) => setPromoCodes(prev => prev.map(p => p.id === id ? { ...p, isActive: !p.isActive } : p));
+  const addBlog = (blog: Blog) => setBlogs(prev => [...prev, blog]);
+  const deleteBlog = (id: string) => setBlogs(prev => prev.filter(b => b.id !== id));
+  const addAgreement = (agreement: Agreement) => setAgreements(prev => [...prev, agreement]);
+  const deleteAgreement = (id: string) => setAgreements(prev => prev.filter(a => a.id !== id));
+  
+  const addPage = (page: Page) => { setPages(prev => [...prev, page]); logActivity('Page Added', page.title); };
+  const updatePage = (id: string, page: Partial<Page>) => { setPages(prev => prev.map(p => p.id === id ? { ...p, ...page } : p)); logActivity('Page Updated', id); };
+  const deletePage = (id: string) => { setPages(prev => prev.filter(p => p.id !== id)); logActivity('Page Deleted', id); };
+
+  const addComment = (newCommentData: Omit<Comment, 'id' | 'date' | 'isApproved'>) => {
+      const newComment: Comment = {
+          id: `cmt-${Date.now()}`,
+          ...newCommentData,
+          isApproved: true, 
+          date: new Date().toISOString()
+      };
+      setComments(prev => [newComment, ...prev]);
+      logActivity('New Comment', `${newCommentData.author} rəy yazdı: ${newComment.rating} ulduz.`);
+  };
+  const toggleCommentApproval = (id: string) => setComments(prev => prev.map(c => c.id === id ? {...c, isApproved: !c.isApproved} : c));
+  const deleteComment = (id: string) => setComments(prev => prev.filter(c => c.id !== id));
+
+  const addHeroSlide = (slide: HeroSlide) => { setHeroSlides(prev => [...prev, slide]); logActivity('Hero Slide Added', slide.title); }
+  const deleteHeroSlide = (id: string) => { setHeroSlides(prev => prev.filter(s => s.id !== id)); logActivity('Hero Slide Deleted', id); }
 
   return (
     <AppContext.Provider value={{ 
@@ -409,7 +708,7 @@ export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
       addStock, deleteStock, toggleWishlist,
       addHeroSlide, deleteHeroSlide,
       giveaways: [], 
-      joinGiveaway: async () => {}, 
+      joinGiveaway: () => {}, 
       mysteryBoxes: [], 
       openMysteryBox: async () => null
     }}>

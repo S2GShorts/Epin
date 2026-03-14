@@ -292,14 +292,55 @@ const Profile = () => {
                                         ></div>
                                     </div>
 
-                                    {/* Actions */}
-                                    <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg">
-                                         <div className="flex gap-2">
-                                             <span className="text-xs bg-slate-800 text-gray-300 px-2 py-1 rounded">Login: {sub.deliveredContent?.split(':')[0] || 'Gizli'}</span>
-                                         </div>
-                                         <button onClick={() => navigate(`/product/${sub.items[0].productId}`)} className="flex items-center gap-2 text-sm font-bold text-gaming-neon hover:text-white transition-colors">
-                                             <RefreshCw className="w-4 h-4" /> Yenilə
-                                         </button>
+                                    {/* Actions & Account Details */}
+                                    <div className="bg-black/20 p-4 rounded-xl border border-white/5 space-y-3">
+                                        {sub.deliveredAccountDetails && sub.deliveredAccountDetails.length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {sub.deliveredAccountDetails.map((acc, idx) => (
+                                                    <div key={idx} className="space-y-2 text-sm">
+                                                        {acc.email && (
+                                                            <div className="flex justify-between items-center bg-slate-900/50 p-2 rounded">
+                                                                <span className="text-gray-500">Mail:</span>
+                                                                <span className="text-white font-mono">{acc.email}</span>
+                                                            </div>
+                                                        )}
+                                                        {acc.password && (
+                                                            <div className="flex justify-between items-center bg-slate-900/50 p-2 rounded">
+                                                                <span className="text-gray-500">Parol:</span>
+                                                                <button 
+                                                                    onClick={() => navigate(`/get-code?email=${encodeURIComponent(acc.email || '')}`)}
+                                                                    className="text-gaming-neon hover:underline font-bold text-xs flex items-center gap-1"
+                                                                >
+                                                                    Kodu əldə et
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        {acc.profile && (
+                                                            <div className="flex justify-between items-center bg-slate-900/50 p-2 rounded">
+                                                                <span className="text-gray-500">Otaq:</span>
+                                                                <span className="text-white font-bold">{acc.profile}</span>
+                                                            </div>
+                                                        )}
+                                                        {acc.profilePin && (
+                                                            <div className="flex justify-between items-center bg-slate-900/50 p-2 rounded">
+                                                                <span className="text-gray-500">Otaq Kodu:</span>
+                                                                <span className="text-white font-mono tracking-widest">{acc.profilePin}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                <span className="text-xs bg-slate-800 text-gray-300 px-2 py-1 rounded">Login: {sub.deliveredContent?.split(':')[0] || 'Gizli'}</span>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex justify-end pt-2 border-t border-white/5">
+                                            <button onClick={() => navigate(`/product/${sub.items[0].productId}`)} className="flex items-center gap-2 text-sm font-bold text-gaming-neon hover:text-white transition-colors">
+                                                <RefreshCw className="w-4 h-4" /> Yenilə
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             );

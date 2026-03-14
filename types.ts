@@ -30,6 +30,12 @@ export interface StockCode {
   code: string;
   isUsed: boolean;
   dateAdded: string;
+  // New fields for Account type products (e.g., Netflix)
+  email?: string;
+  password?: string;
+  profile?: string;
+  profilePin?: string;
+  expireDate?: string;
 }
 
 export interface ActivityLog {
@@ -151,6 +157,7 @@ export interface Order {
   paymentMethodName: string;
   receiptImage?: string; 
   deliveredContent?: string;
+  deliveredAccountDetails?: Partial<StockCode>[]; // Added to store detailed account info
   expiryDate?: string;
   
   productTitle?: string;

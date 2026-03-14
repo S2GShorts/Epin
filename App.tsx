@@ -7,6 +7,7 @@ import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import ProductView from './pages/ProductView';
 import Profile from './pages/Profile';
+import GetCode from './pages/GetCode';
 import Admin from './pages/Admin';
 import Auth from './pages/Auth';
 import Cart from './pages/Cart';
@@ -73,6 +74,7 @@ const App = () => {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/product/:id" element={<ProductView />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/get-code" element={<GetCode />} />
             <Route path="/giveaways" element={<Giveaways />} />
             <Route path="/mystery-boxes" element={<MysteryBoxes />} />
             <Route path="/admin" element={<Admin />} />

@@ -123,6 +123,14 @@ const Admin = () => {
   // Stock
   const [stockProduct, setStockProduct] = useState('');
   const [stockInput, setStockInput] = useState('');
+  const [isAccountStock, setIsAccountStock] = useState(false);
+  const [accountStockForm, setAccountStockForm] = useState({
+      email: '',
+      password: '',
+      profile: '',
+      profilePin: '',
+      expireDate: ''
+  });
 
   // Users
   const [userSearch, setUserSearch] = useState('');
@@ -229,11 +237,23 @@ const Admin = () => {
 
   // Stock Logic
   const handleAddStock = () => {
-      if(!stockProduct || !stockInput) return;
-      const codes = stockInput.split('\n').filter(c => c.trim().length > 0);
-      addStock(stockProduct, codes);
-      setStockInput('');
-      alert(`${codes.length} ədəd kod əlavə olundu.`);
+      if(!stockProduct) return;
+      
+      if (isAccountStock) {
+          if (!accountStockForm.email || !accountStockForm.password) {
+              alert("Mail və Parol mütləqdir.");
+              return;
+          }
+          addStock(stockProduct, ['ACCOUNT'], accountStockForm);
+          setAccountStockForm({ email: '', password: '', profile: '', profilePin: '', expireDate: '' });
+          alert("Hesab stoka əlavə olundu.");
+      } else {
+          if(!stockInput) return;
+          const codes = stockInput.split('\n').filter(c => c.trim().length > 0);
+          addStock(stockProduct, codes);
+          setStockInput('');
+          alert(`${codes.length} ədəd kod əlavə olundu.`);
+      }
   };
 
   // Order Logic
@@ -860,7 +880,24 @@ const Admin = () => {
                                    <option key={p.id} value={p.id}>{p.title}</option>
                                ))}
                            </select>
-                           <textarea className="input h-32 font-mono" placeholder="Hər sətrə bir kod..." value={stockInput} onChange={e => setStockInput(e.target.value)}></textarea>
+                           
+                           <label className="flex items-center gap-2 cursor-pointer">
+                               <input type="checkbox" checked={isAccountStock} onChange={e => setIsAccountStock(e.target.checked)} className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary" />
+                               <span className="text-sm font-medium">Hesab kimi əlavə et (Netflix və s.)</span>
+                           </label>
+
+                           {isAccountStock ? (
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                   <input className="input" placeholder="Mail" value={accountStockForm.email} onChange={e => setAccountStockForm({...accountStockForm, email: e.target.value})} />
+                                   <input className="input" placeholder="Parol" value={accountStockForm.password} onChange={e => setAccountStockForm({...accountStockForm, password: e.target.value})} />
+                                   <input className="input" placeholder="Otaq (Profile)" value={accountStockForm.profile} onChange={e => setAccountStockForm({...accountStockForm, profile: e.target.value})} />
+                                   <input className="input" placeholder="Otaq Kodu (PIN)" value={accountStockForm.profilePin} onChange={e => setAccountStockForm({...accountStockForm, profilePin: e.target.value})} />
+                                   <input className="input" type="date" placeholder="Bitmə Tarixi" value={accountStockForm.expireDate} onChange={e => setAccountStockForm({...accountStockForm, expireDate: e.target.value})} />
+                               </div>
+                           ) : (
+                               <textarea className="input h-32 font-mono" placeholder="Hər sətrə bir kod..." value={stockInput} onChange={e => setStockInput(e.target.value)}></textarea>
+                           )}
+                           
                            <button onClick={handleAddStock} className="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl">Yüklə</button>
                        </div>
                   </div>
@@ -881,7 +918,19 @@ const Admin = () => {
                                   {stocks.map(stock => (
                                       <tr key={stock.id} className="border-b border-white/5 hover:bg-white/5">
                                           <td className="p-3 text-white font-bold">{products.find(p=>p.id===stock.productId)?.title}</td>
-                                          <td className="p-3 font-mono">{stock.code}</td>
+                                          <td className="p-3 font-mono">
+                                              {stock.email ? (
+                                                  <div className="text-xs">
+                                                      <div><span className="text-gray-500">Mail:</span> {stock.email}</div>
+                                                      <div><span className="text-gray-500">Parol:</span> {stock.password}</div>
+                                                      {stock.profile && <div><span className="text-gray-500">Otaq:</span> {stock.profile}</div>}
+                                                      {stock.profilePin && <div><span className="text-gray-500">PIN:</span> {stock.profilePin}</div>}
+                                                      {stock.expireDate && <div><span className="text-gray-500">Bitmə:</span> {stock.expireDate}</div>}
+                                                  </div>
+                                              ) : (
+                                                  stock.code
+                                              )}
+                                          </td>
                                           <td className="p-3">{stock.isUsed ? <span className="text-red-500">İstifadə edilib</span> : <span className="text-green-500">Aktiv</span>}</td>
                                           <td className="p-3">
                                               <button onClick={() => handleDelete('stock', stock.id)} className="text-red-400 hover:text-white"><Trash2 className="w-4 h-4"/></button>
