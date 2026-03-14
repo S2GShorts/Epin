@@ -108,44 +108,66 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+function useLocalStorage<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [key, storedValue]);
+
+  return [storedValue, setStoredValue];
+}
+
 export const AppProvider = ({ children }: { children?: React.ReactNode }) => {
   // UI State
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Use state for critical data (No LocalStorage)
-  const [user, setUser] = useState<User | null>(null);
-  const [usersList, setUsersList] = useState<User[]>(MOCK_USERS);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [stocks, setStocks] = useState<StockCode[]>([]);
+  const [user, setUser] = useLocalStorage<User | null>('gamepay_user', null);
+  const [usersList, setUsersList] = useLocalStorage<User[]>('gamepay_usersList', MOCK_USERS);
+  const [orders, setOrders] = useLocalStorage<Order[]>('gamepay_orders', []);
+  const [cart, setCart] = useLocalStorage<CartItem[]>('gamepay_cart', []);
+  const [stocks, setStocks] = useLocalStorage<StockCode[]>('gamepay_stocks', []);
   
   // Data State
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(INITIAL_HERO_SLIDES);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(INITIAL_PAYMENT_METHODS);
-  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(MOCK_PROMO_CODES);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [products, setProducts] = useLocalStorage<Product[]>('gamepay_products', INITIAL_PRODUCTS);
+  const [categories, setCategories] = useLocalStorage<Category[]>('gamepay_categories', INITIAL_CATEGORIES);
+  const [heroSlides, setHeroSlides] = useLocalStorage<HeroSlide[]>('gamepay_heroSlides', INITIAL_HERO_SLIDES);
+  const [paymentMethods, setPaymentMethods] = useLocalStorage<PaymentMethod[]>('gamepay_paymentMethods', INITIAL_PAYMENT_METHODS);
+  const [promoCodes, setPromoCodes] = useLocalStorage<PromoCode[]>('gamepay_promoCodes', MOCK_PROMO_CODES);
+  const [siteSettings, setSiteSettings] = useLocalStorage<SiteSettings>('gamepay_siteSettings', INITIAL_SETTINGS);
+  const [notifications, setNotifications] = useLocalStorage<Notification[]>('gamepay_notifications', []);
+  const [activityLogs, setActivityLogs] = useLocalStorage<ActivityLog[]>('gamepay_activityLogs', []);
   
   // CMS State
-  const [blogs, setBlogs] = useState<Blog[]>([
+  const [blogs, setBlogs] = useLocalStorage<Blog[]>('gamepay_blogs', [
     { id: 'b1', title: 'GPT-4o Artıq Aktivdir!', content: 'OpenAI-ın ən yeni modeli artıq platformamızda mövcuddur.', date: new Date().toISOString(), image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995' }
   ]);
-  const [agreements, setAgreements] = useState<Agreement[]>([
+  const [agreements, setAgreements] = useLocalStorage<Agreement[]>('gamepay_agreements', [
     { id: 'a1', title: 'İstifadəçi Razılaşması', content: 'Saytımızdan istifadə edərkən...' },
     { id: 'a2', title: 'Zəmanət Şərtləri', content: 'Bütün məhsullara rəsmi zəmanət verilir...' }
   ]);
   
-  const [pages, setPages] = useState<Page[]>([
+  const [pages, setPages] = useLocalStorage<Page[]>('gamepay_pages', [
       { id: 'pg1', title: 'Haqqımızda', slug: 'haqqimizda', content: 'GamePay Azərbaycanın ən böyük rəqəmsal oyun platformasıdır...', category: 'corporate', isActive: true },
       { id: 'pg2', title: 'Gizlilik Politikası', slug: 'gizlilik-politikasi', content: 'Sizin məlumatlarınız bizim üçün önəmlidir...', category: 'agreement', isActive: true },
       { id: 'pg3', title: 'İstifadəçi Sözləşməsi', slug: 'istifadeci-sozlesmesi', content: 'Sayt istifadə qaydaları...', category: 'agreement', isActive: true },
       { id: 'pg4', title: 'İptal & İade Koşulları', slug: 'iptal-iade-kosullari', content: 'Rəqəmsal məhsulların geri qaytarılması...', category: 'agreement', isActive: true },
   ]);
 
-  const [comments, setComments] = useState<Comment[]>([
+  const [comments, setComments] = useLocalStorage<Comment[]>('gamepay_comments', [
     { id: 'c1', author: 'Sənan Q.', content: 'Canva Pro ömürlük aldım, dərhal aktivləşdi. Əla!', type: 'product', targetId: 'p2', isApproved: true, date: new Date().toISOString(), rating: 5 },
     { id: 'c2', author: 'Elvin M.', content: 'PUBG UC anında gəldi, təşəkkürlər.', type: 'site', isApproved: true, date: new Date().toISOString(), rating: 5 },
     { id: 'c3', author: 'Aysel K.', content: 'Ən ucuz qiymətlər burdadır.', type: 'site', isApproved: true, date: new Date().toISOString(), rating: 5 }
